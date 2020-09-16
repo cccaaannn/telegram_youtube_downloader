@@ -1,24 +1,16 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
+import json
 import re
 import os
 
+# import downloader class
 from youtube_downloader import youtube_downloader
 
 
-# options
-telegram_logger = "log/telegram.log"
-yt_download_logger = "log/yt_downloader.log"
-temp_folder_path = "tmp"
-timeout = 180000
 
-
-# create downloader object
-ytd = youtube_downloader(temp_folder_path = temp_folder_path, log_file = yt_download_logger)
-
-
-# create logger
-def __set_logger(logger_name, log_file=None, log_level=20):
+# logger functions
+def create_logger(logger_name, log_file=None, log_level=20):
 
     logger = logging.getLogger(logger_name)  
 
@@ -41,10 +33,7 @@ def __set_logger(logger_name, log_file=None, log_level=20):
 
     return logger
 
-# set logger
-logger = __set_logger(__name__, log_file=telegram_logger)
-
-def command_logger(logger):
+def command_logger(logger, function_usages):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
@@ -54,7 +43,7 @@ def command_logger(logger):
                 args[0].message.reply_text(function_usages[func.__name__])
                 logger.warning("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
             except:
-                args[0].message.reply_text("something went wrong")
+                args[0].message.reply_text("something went wrong (video might be too long for current 'send' timeout)")
                 logger.error("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
         return wrapper
     return decorator
@@ -74,89 +63,146 @@ def is_youtube_link(link):
     match = compiled_pattern.match(link)
     return match
 
-function_usages = {"help": "usage /help", "audio": "usage /audio <youtube link>", "video": "usage /video <youtube link>"}
+def read_cfg_file(cfg_path):
+    try:
+        with open(cfg_path,"r") as file:
+            d = json.load(file)
+        return d
+    except:
+        return 0
 
 
 
-# telegram functions
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.error('Update "%s" caused error "%s"', update, context.error)
+def main(botkey, cfg_path = "cfg/options.cfg"):
 
+    # set options
+    cfg_dict = read_cfg_file(cfg_path)
+    if(cfg_dict):
+        # youtube downloader options
+        yt_downloader_logger_name = cfg_dict["yt_downloader"]["yt_downloader_logger_name"]
+        yt_downloader_logger_file = cfg_dict["yt_downloader"]["yt_downloader_logger_file"]
+        yt_downloader_log_level = cfg_dict["yt_downloader"]["yt_downloader_log_level"]
+        temp_folder_path = cfg_dict["yt_downloader"]["temp_folder_path"]
+        temp_file_name = cfg_dict["yt_downloader"]["temp_file_name"]
+        bad_chars = cfg_dict["yt_downloader"]["bad_chars"]
+        video_formats = cfg_dict["yt_downloader"]["video_formats"]
+        preferred_video_format = cfg_dict["yt_downloader"]["preferred_video_format"]
+        preferred_audio_codec = cfg_dict["yt_downloader"]["preferred_audio_codec"]
 
-@command_logger(logger)
-def help(update, context):
-    """Send a message when the command /help is issued."""
-    usages_str = function_usages_str(function_usages)
-    update.message.reply_text(usages_str)
-
-
-@command_logger(logger)
-def audio(update, context):
-
-    link = context.args[0]
-
-    # check the link
-    match = is_youtube_link(link)
-    if(not match):
-        update.message.reply_text("link is not from youtube")
+        # telegram bot options
+        telegram_logger_name = cfg_dict["telegram_bot"]["telegram_logger_name"]
+        telegram_logger_file = cfg_dict["telegram_bot"]["telegram_logger_file"]
+        telegram_bot_log_level = cfg_dict["telegram_bot"]["telegram_bot_log_level"]
+        timeout_audio = cfg_dict["telegram_bot"]["timeout_audio"]
+        timeout_video = cfg_dict["telegram_bot"]["timeout_video"]
+        function_usages = cfg_dict["telegram_bot"]["function_usages"]
+    else:
+        print("cfg file is broken")
         return
 
-    # download
-    status, path = ytd.download(link, dl_type="audio")
-
-    # send error mesages
-    if(not status):
-        update.message.reply_text(path)
-        return
-
-    # send file
-    context.bot.send_audio(chat_id=update.message.chat.id, audio=open(path, 'rb'), timeout=timeout)
-
-    # delete file (full path required for security)
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
-    ytd.rm_downloaded_file(path)
 
 
-@command_logger(logger)
-def video(update, context):
+    # set logger
+    logger = create_logger(telegram_logger_name, log_file=telegram_logger_file, log_level=telegram_bot_log_level)
 
-    link = context.args[0]
-
-    # check the link
-    match = is_youtube_link(link)
-    if(not match):
-        update.message.reply_text("link is not from youtube")
-        return
-
-    # download
-    status, path = ytd.download(link, dl_type="video", dl_format="480p")
-
-    # send error mesages
-    if(not status):
-        update.message.reply_text(path)
-        return
-
-    # send file
-    context.bot.send_video(chat_id=update.message.chat.id, video=open(path, 'rb'), timeout=timeout)
-
-    # delete file (full path required for security)
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
-    ytd.rm_downloaded_file(path)
+    # create downloader object
+    ytd = youtube_downloader(
+    logger_name=yt_downloader_logger_name,
+    log_file=yt_downloader_logger_file,
+    log_level=yt_downloader_log_level, 
+    temp_folder_path=temp_folder_path,
+    temp_file_name=temp_file_name,
+    bad_chars=bad_chars,
+    video_formats=video_formats,
+    preferred_video_format=preferred_video_format,
+    preferred_audio_codec=preferred_audio_codec
+    )
 
 
+    
+    # telegram functions
+    def error(update, context):
+        """Log Errors caused by Updates."""
+        logger.error('Update "%s" caused error "%s"', update, context.error)
+
+    @command_logger(logger, function_usages)
+    def help(update, context):
+        """Send a message when the command /help is issued."""
+        usages_str = function_usages_str(function_usages)
+        update.message.reply_text(usages_str)
+
+    @command_logger(logger, function_usages)
+    def formats(update, context):
+        """Sends video download formats"""
+        formats = ytd.get_video_formats()
+        update.message.reply_text(formats)
+
+    @command_logger(logger, function_usages)
+    def audio(update, context):
+
+        link = context.args[0]
+
+        # check the link
+        match = is_youtube_link(link)
+        if(not match):
+            update.message.reply_text("link is not from youtube")
+            return
+
+        # download
+        update.message.reply_text("downloading...")
+        status, path = ytd.download(link, dl_type="audio")
+
+        # send error mesages
+        if(not status):
+            update.message.reply_text(path)
+            return
+
+        # send file
+        update.message.reply_text("uploading...")
+        context.bot.send_audio(chat_id=update.message.chat.id, audio=open(path, 'rb'), timeout=timeout_audio)
+
+    @command_logger(logger, function_usages)
+    def video(update, context):
+        
+        if(len(context.args) == 2):
+            quality = context.args[0]
+            link = context.args[1]
+        elif(len(context.args) == 1):
+            link = context.args[0]
+            quality = "480p"
+        else:
+            update.message.reply_text(function_usages["video"])
+            return
+
+        # check the link
+        match = is_youtube_link(link)
+        if(not match):
+            update.message.reply_text("link is not from youtube")
+            return
+
+        # download
+        update.message.reply_text("downloading...")
+        status, path = ytd.download(link, dl_type="video", dl_format=quality)
+
+        # send error mesages
+        if(not status):
+            update.message.reply_text(path)
+            return
+
+        # send file
+        update.message.reply_text("uploading...")
+        context.bot.send_video(chat_id=update.message.chat.id, video=open(path, 'rb'), timeout=timeout_video)
 
 
 
-
-def main(botkey):
-    updater = Updater(botkey, use_context=True)
 
     # bot loop
+    updater = Updater(botkey, use_context=True)
     dp = updater.dispatcher
 
     # command handler
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("formats", formats))
     dp.add_handler(CommandHandler("audio", audio, pass_args=True))
     dp.add_handler(CommandHandler("video", video, pass_args=True))
 
@@ -165,7 +211,5 @@ def main(botkey):
 
     updater.start_polling()
     updater.idle()
-
-
 
 
