@@ -1,6 +1,11 @@
 # telegram botkey
 my_bot_key.py
 
+# downloaded videos
+*.mp4
+*.mp3
+*.mkv
+
 # ffmpeg
 ffmpeg.exe
 ffplay.exe
