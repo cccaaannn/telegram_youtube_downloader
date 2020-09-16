@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import youtube_dl
 import logging
+import re
 import os
 
 
@@ -87,6 +88,12 @@ class youtube_downloader():
         # "progress_hooks": [self.__hook],
         }
 
+    def __is_youtube_link(self, link):
+        pattern = r"https://(www.youtube.com/|www.m.youtube.com/|m.youtube.com/)"
+        compiled_pattern = re.compile(pattern)
+        match = compiled_pattern.match(link)
+        return match
+
     def __remove_keep_files_form_lists(self, l):
         """git cant track empty files so this removes .keep files from lists to prevent deletion or errors"""
         if(os.path.isfile(os.path.join(self.temp_folder_path, ".keep"))):
@@ -135,7 +142,6 @@ class youtube_downloader():
             return 0, "downloaded video caused error (possibly because of the video title has some bad chars)"
 
 
-
     def get_video_formats(self):
         """returns video formats"""
         self.logger.info("Function name: get_video_types")
@@ -144,11 +150,10 @@ class youtube_downloader():
             str_formats += str_format + " " 
         return str_formats
 
-
-
     def download(self, link, dl_type = "audio", dl_format = "480p"):
         self.logger.info("Function name: download args: {0}, dl_type = {1}, dl_format = {2}".format(link, dl_type, dl_format))
 
+        # parameter checking
         if(dl_type == "audio"):
             temp_ydl_options = self.ydl_opts_audio.copy()
         elif(dl_type == "video"):
@@ -165,7 +170,13 @@ class youtube_downloader():
             self.logger.warning("download type is not supported {0}".format(dl_type))
             return 0, "download type is not supported"
 
+        # check the link
+        match = self.__is_youtube_link(link)
+        if(not match):
+            self.logger.warning("link is not from youtube {0}".format(link))
+            return 0, "link is not from youtube"
 
+        # start download stage
         try:
             with youtube_dl.YoutubeDL(temp_ydl_options) as ydl:
 
@@ -193,17 +204,12 @@ class youtube_downloader():
 
 
 
+# if __name__ == "__main__":
+#     link = 'https://www.youtube.com/watch?v=a3ICNMQW7Ok'
 
-if __name__ == "__main__":
-    link = 'https://www.youtube.com/watch?v=a3ICNMQW7Ok'
+#     ytd = youtube_downloader()
 
-    ytd = youtube_downloader()
+#     status, path = ytd.download(link, dl_type="audio", dl_format="720p")
 
-    status, path = ytd.download(link, dl_type="audio", dl_format="720p")
-
-    print(status, path)
-
-
-
-
+#     print(status, path)
 

@@ -1,12 +1,10 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import json
-import re
 import os
 
 # import downloader class
 from youtube_downloader import youtube_downloader
-
 
 
 # logger functions
@@ -49,19 +47,12 @@ def command_logger(logger, function_usages):
     return decorator
 
 
-
 # utilities
 def function_usages_str(function_usages):
     usages_str = ""
     for i in function_usages:
         usages_str += "command: {0} {1}\n".format(i, function_usages[i])
     return usages_str
-
-def is_youtube_link(link):
-    pattern = r"https://(www.youtube.com/|www.m.youtube.com/|m.youtube.com/)"
-    compiled_pattern = re.compile(pattern)
-    match = compiled_pattern.match(link)
-    return match
 
 def read_cfg_file(cfg_path):
     try:
@@ -70,7 +61,6 @@ def read_cfg_file(cfg_path):
         return d
     except:
         return 0
-
 
 
 def main(botkey, cfg_path = "cfg/options.cfg"):
@@ -101,7 +91,6 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
         return
 
 
-
     # set logger
     logger = create_logger(telegram_logger_name, log_file=telegram_logger_file, log_level=telegram_bot_log_level)
 
@@ -117,7 +106,6 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
     preferred_video_format=preferred_video_format,
     preferred_audio_codec=preferred_audio_codec
     )
-
 
     
     # telegram functions
@@ -142,14 +130,8 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
 
         link = context.args[0]
 
-        # check the link
-        match = is_youtube_link(link)
-        if(not match):
-            update.message.reply_text("link is not from youtube")
-            return
-
         # download
-        update.message.reply_text("downloading...")
+        update.message.reply_text("please wait...")
         status, path = ytd.download(link, dl_type="audio")
 
         # send error mesages
@@ -158,7 +140,7 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
             return
 
         # send file
-        update.message.reply_text("uploading...")
+        update.message.reply_text("sending...")
         context.bot.send_audio(chat_id=update.message.chat.id, audio=open(path, 'rb'), timeout=timeout_audio)
 
     @command_logger(logger, function_usages)
@@ -174,14 +156,8 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
             update.message.reply_text(function_usages["video"])
             return
 
-        # check the link
-        match = is_youtube_link(link)
-        if(not match):
-            update.message.reply_text("link is not from youtube")
-            return
-
         # download
-        update.message.reply_text("downloading...")
+        update.message.reply_text("please wait...")
         status, path = ytd.download(link, dl_type="video", dl_format=quality)
 
         # send error mesages
@@ -190,13 +166,11 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
             return
 
         # send file
-        update.message.reply_text("uploading...")
+        update.message.reply_text("sending...")
         context.bot.send_video(chat_id=update.message.chat.id, video=open(path, 'rb'), timeout=timeout_video)
 
 
-
-
-    # bot loop
+    
     updater = Updater(botkey, use_context=True)
     dp = updater.dispatcher
 
@@ -209,6 +183,7 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
     # error handler
     dp.add_error_handler(error)
 
+    # start bot
     updater.start_polling()
     updater.idle()
 
