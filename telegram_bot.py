@@ -40,11 +40,11 @@ def command_logger(logger, function_usages):
                 logger.info("Function name: {0} User info: {1}".format(func.__name__, args[0].message.from_user))
                 func(*args, **kwargs)
             except(IndexError, ValueError): 
-                args[0].message.reply_text(function_usages[func.__name__])
                 logger.warning("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
+                args[0].message.reply_text(function_usages[func.__name__])
             except:
-                args[0].message.reply_text("something went wrong (video might be too long for current 'send' timeout)")
                 logger.error("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
+                args[0].message.reply_text("something went wrong")
         return wrapper
     return decorator
 

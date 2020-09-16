@@ -4,8 +4,6 @@ import logging
 import os
 
 
-
-
 class youtube_downloader():
     """uses youtube_dl to download
     https://github.com/ytdl-org/youtube-dl
@@ -89,10 +87,16 @@ class youtube_downloader():
         # "progress_hooks": [self.__hook],
         }
 
+    def __remove_keep_files_form_lists(self, l):
+        """git cant track empty files so this removes .keep files from lists to prevent deletion or errors"""
+        if(os.path.isfile(os.path.join(self.temp_folder_path, ".keep"))):
+            l.remove(".keep")
+
     def __clear_temp_folder(self):
         """clears temp folder before download because youtube_dl can't override files and can't give you the path.
         I need to list all the temp folder to find downloaded file, there can't be another file here or exception occurres"""
         files = os.listdir(self.temp_folder_path)
+        self.__remove_keep_files_form_lists(files)
         for f in files:
             os.remove(os.path.join(self.temp_folder_path, f))
         
@@ -106,9 +110,10 @@ class youtube_downloader():
         """renames downloaded temp file to videos title. 
         there is no way to know the extension of the file that youtube_dl downloaded so I get all files in the temp folder and rename after download"""
         temp_file_locations = os.listdir(self.temp_folder_path)
-
+        self.__remove_keep_files_form_lists(temp_file_locations)
+        
         if(len(temp_file_locations) != 1):
-            self.logger.error("multiple files exists in the temp file")
+            self.logger.error("multiple files exists in the temp folder")
             return 0, "downloaded video caused error (possibly because of the video format)"
         temp_file_location = os.path.join(self.temp_folder_path, temp_file_locations[0])
 
