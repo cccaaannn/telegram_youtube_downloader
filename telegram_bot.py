@@ -63,7 +63,7 @@ def read_cfg_file(cfg_path):
         return 0
 
 
-def main(botkey, cfg_path = "cfg/options.cfg"):
+def run_bot(botkey, cfg_path = "cfg/options.cfg"):
 
     # set options
     cfg_dict = read_cfg_file(cfg_path)
@@ -78,6 +78,7 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
         video_formats = cfg_dict["yt_downloader"]["video_formats"]
         preferred_video_format = cfg_dict["yt_downloader"]["preferred_video_format"]
         preferred_audio_codec = cfg_dict["yt_downloader"]["preferred_audio_codec"]
+        max_video_duration = cfg_dict["yt_downloader"]["max_video_duration"]
 
         # telegram bot options
         telegram_logger_name = cfg_dict["telegram_bot"]["telegram_logger_name"]
@@ -104,7 +105,8 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
     bad_chars=bad_chars,
     video_formats=video_formats,
     preferred_video_format=preferred_video_format,
-    preferred_audio_codec=preferred_audio_codec
+    preferred_audio_codec=preferred_audio_codec,
+    max_video_duration=max_video_duration
     )
 
     
@@ -151,7 +153,7 @@ def main(botkey, cfg_path = "cfg/options.cfg"):
             link = context.args[1]
         elif(len(context.args) == 1):
             link = context.args[0]
-            quality = "480p"
+            quality = "default"
         else:
             update.message.reply_text(function_usages["video"])
             return
