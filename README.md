@@ -26,7 +26,7 @@ Telegram bot for downloading and sending youtube videos.
 Configuration file contains several options.
 - Logger name, file path-name, log level.
 - Bad chars and their replacements. (mostly for windows)
-- Video formats and their command names. (video formats can be found on youtube_dl documentations [youtube_dl](https://youtube-dl.org/))
+- Video formats and their command names. (for more video formats youtube_dl documentations [youtube_dl](https://youtube-dl.org/))
 - Preferred video format and audio codec.
 - Audio and video sending timeout intervals. (if you are running this on a slow internet, increase those)
 - Maximum allowed video duration.
