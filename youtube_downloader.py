@@ -19,7 +19,8 @@ class youtube_downloader():
     bad_chars={'"':'\'','<':'','>':'',':':'','/':'','\\':'','|':'','?':'','*':''},
     video_formats={"1080p":"137+bestaudio/best", "720p":"136+bestaudio/best", "480p":"135+bestaudio/best", "360p":"134+bestaudio/best", "240p":"133+bestaudio/best"},
     preferred_video_format="mp4",
-    preferred_audio_codec="mp3"
+    preferred_audio_codec="mp3",
+    max_video_duration = 1200
     ):
 
         # downloader variables
@@ -29,6 +30,7 @@ class youtube_downloader():
         self.bad_chars = bad_chars
         self.preferred_video_format = preferred_video_format
         self.preferred_audio_codec = preferred_audio_codec
+        self.max_video_duration = max_video_duration
         self.__youtube_dl_options()
 
         # logging variables
@@ -150,7 +152,7 @@ class youtube_downloader():
             str_formats += str_format + " " 
         return str_formats
 
-    def download(self, link, dl_type = "audio", dl_format = "480p"):
+    def download(self, link, dl_type = "audio", dl_format = "default"):
         self.logger.info("Function name: download args: {0}, dl_type = {1}, dl_format = {2}".format(link, dl_type, dl_format))
 
         # parameter checking
@@ -179,6 +181,11 @@ class youtube_downloader():
         # start download stage
         try:
             with youtube_dl.YoutubeDL(temp_ydl_options) as ydl:
+                
+                # get video info for checking duration
+                meta = ydl.extract_info(link, download=False) 
+                if(meta["duration"] > self.max_video_duration):
+                    return 0, "video duration exceeds defined limit of {0} ".format(self.max_video_duration)
 
                 # clear teh temp folder
                 self.__clear_temp_folder()
