@@ -91,7 +91,7 @@ class youtube_downloader():
         }
 
     def __is_youtube_link(self, link):
-        pattern = r"https://(www.youtube.com/|www.m.youtube.com/|m.youtube.com/)"
+        pattern = r"https://(www.youtube.com/|www.m.youtube.com/|m.youtube.com/|youtu.be/)"
         compiled_pattern = re.compile(pattern)
         match = compiled_pattern.match(link)
         return match
