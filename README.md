@@ -16,6 +16,7 @@ Telegram bot for downloading and sending youtube videos.
 ### **Setting it up**
 - Download ffmpeg for your os from [ffmpeg.org](https://ffmpeg.org/).
 - Put ffmpeg files in the ffmpeg folder in the project.
+- Install requirements. (some libs also available for offline download under libs folder)
 - Get a telegram bot key.
 - Pass the key to the run_bot function.
 - It will work. (I hope 🤷🏻‍♂️)
