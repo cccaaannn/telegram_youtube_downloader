@@ -6,6 +6,16 @@ import json
 from youtube_downloader import youtube_downloader
 
 
+# static values
+cfg_path = "cfg/options.cfg"
+function_usages = {
+    "help": "usage /help",
+    "formats": "usage /formats",
+    "audio": "usage /audio <youtube link>", 
+    "video": "usage /video <youtube link> or /video 480p <youtube link>"
+}
+
+
 # logger functions
 def create_logger(logger_name, log_file=None, log_level=20):
 
@@ -61,32 +71,33 @@ def read_cfg_file(cfg_path):
     except:
         return 0
 
-
-def run_bot(botkey, cfg_path = "cfg/options.cfg"):
+def run_bot(botkey, cfg_path=cfg_path):
 
     # set options
     cfg_dict = read_cfg_file(cfg_path)
     if(cfg_dict):
         # youtube downloader options
-        yt_downloader_logger_name = cfg_dict["yt_downloader"]["yt_downloader_logger_name"]
-        yt_downloader_logger_file = cfg_dict["yt_downloader"]["yt_downloader_logger_file"]
-        yt_downloader_log_level = cfg_dict["yt_downloader"]["yt_downloader_log_level"]
-        temp_folder_path = cfg_dict["yt_downloader"]["temp_folder_path"]
-        temp_file_name = cfg_dict["yt_downloader"]["temp_file_name"]
-        bad_chars = cfg_dict["yt_downloader"]["bad_chars"]
-        video_formats = cfg_dict["yt_downloader"]["video_formats"]
-        preferred_video_format = cfg_dict["yt_downloader"]["preferred_video_format"]
-        preferred_audio_codec = cfg_dict["yt_downloader"]["preferred_audio_codec"]
-        ffmpeg_location = cfg_dict["yt_downloader"]["ffmpeg_location"]
-        max_video_duration = cfg_dict["yt_downloader"]["max_video_duration"]
+        yt_downloader_logger_name = cfg_dict["yt_downloader"]["logger"]["logger_name"]
+        yt_downloader_logger_file = cfg_dict["yt_downloader"]["logger"]["logger_file"]
+        yt_downloader_log_level = cfg_dict["yt_downloader"]["logger"]["log_level"]
+
+        video_formats = cfg_dict["yt_downloader"]["download"]["video_formats"]
+        preferred_video_format = cfg_dict["yt_downloader"]["download"]["preferred_video_format"]
+        preferred_audio_codec = cfg_dict["yt_downloader"]["download"]["preferred_audio_codec"]
+        max_video_duration = cfg_dict["yt_downloader"]["download"]["max_video_duration"]
+
+        temp_folder_path = cfg_dict["yt_downloader"]["paths"]["temp_folder_path"]
+        temp_file_name = cfg_dict["yt_downloader"]["paths"]["temp_file_name"]
+        bad_chars = cfg_dict["yt_downloader"]["paths"]["bad_chars"]
+        ffmpeg_location = cfg_dict["yt_downloader"]["paths"]["ffmpeg_location"]
 
         # telegram bot options
-        telegram_logger_name = cfg_dict["telegram_bot"]["telegram_logger_name"]
-        telegram_logger_file = cfg_dict["telegram_bot"]["telegram_logger_file"]
-        telegram_bot_log_level = cfg_dict["telegram_bot"]["telegram_bot_log_level"]
-        timeout_audio = cfg_dict["telegram_bot"]["timeout_audio"]
-        timeout_video = cfg_dict["telegram_bot"]["timeout_video"]
-        function_usages = cfg_dict["telegram_bot"]["function_usages"]
+        telegram_logger_name = cfg_dict["telegram_bot"]["logger"]["logger_name"]
+        telegram_logger_file = cfg_dict["telegram_bot"]["logger"]["logger_file"]
+        telegram_bot_log_level = cfg_dict["telegram_bot"]["logger"]["log_level"]
+        
+        timeout_audio = cfg_dict["telegram_bot"]["timeouts"]["timeout_audio"]
+        timeout_video = cfg_dict["telegram_bot"]["timeouts"]["timeout_video"]
     else:
         print("cfg file is broken")
         return
