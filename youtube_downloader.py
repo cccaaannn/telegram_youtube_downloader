@@ -20,6 +20,7 @@ class youtube_downloader():
     video_formats={"1080p":"137+bestaudio/best", "720p":"136+bestaudio/best", "480p":"135+bestaudio/best", "360p":"134+bestaudio/best", "240p":"133+bestaudio/best"},
     preferred_video_format="mp4",
     preferred_audio_codec="mp3",
+    ffmpeg_location="",
     max_video_duration = 1200
     ):
 
@@ -30,6 +31,7 @@ class youtube_downloader():
         self.bad_chars = bad_chars
         self.preferred_video_format = preferred_video_format
         self.preferred_audio_codec = preferred_audio_codec
+        self.ffmpeg_location = ffmpeg_location
         self.max_video_duration = max_video_duration
         self.__youtube_dl_options()
 
@@ -70,7 +72,6 @@ class youtube_downloader():
             'preferredcodec': self.preferred_audio_codec,
             'preferredquality': '192',
         }],
-        "ffmpeg_location" : "ffmpeg/",
         'format': 'bestaudio/best',
         'noplaylist' : True,
         "outtmpl": os.path.join(self.temp_folder_path, self.temp_file_name + ".%(ext)s"),
@@ -82,13 +83,18 @@ class youtube_downloader():
             'key': 'FFmpegVideoConvertor',
             'preferedformat': self.preferred_video_format,
         }],
-        "ffmpeg_location" : "ffmpeg/",
         'format': 'bestvideo+bestaudio',
         # "yes_overwrites": True, # not working
         'noplaylist' : True,
         "outtmpl": os.path.join(self.temp_folder_path, self.temp_file_name + ".%(ext)s"),
         # "progress_hooks": [self.__hook],
         }
+
+        # add ffmpeg_location if exists
+        if(self.ffmpeg_location):
+            self.ydl_opts_audio["ffmpeg_location"] = self.ffmpeg_location
+            self.ydl_opts_video["ffmpeg_location"] = self.ffmpeg_location
+
 
     def __is_youtube_link(self, link):
         pattern = r"https://(www.youtube.com/|www.m.youtube.com/|m.youtube.com/|youtu.be/)"
@@ -97,7 +103,7 @@ class youtube_downloader():
         return match
 
     def __remove_keep_files_form_lists(self, l):
-        """git cant track empty files so this removes .keep files from lists to prevent deletion or errors"""
+        """git cant track empty folders so this removes .keep files from lists to prevent deletion or errors"""
         if(os.path.isfile(os.path.join(self.temp_folder_path, ".keep"))):
             l.remove(".keep")
 
@@ -210,13 +216,8 @@ class youtube_downloader():
 
 
 
-
 # if __name__ == "__main__":
 #     link = 'https://www.youtube.com/watch?v=a3ICNMQW7Ok'
-
 #     ytd = youtube_downloader()
-
 #     status, path = ytd.download(link, dl_type="audio", dl_format="720p")
-
 #     print(status, path)
-

@@ -1,7 +1,6 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 import logging
 import json
-import os
 
 # import downloader class
 from youtube_downloader import youtube_downloader
@@ -78,6 +77,7 @@ def run_bot(botkey, cfg_path = "cfg/options.cfg"):
         video_formats = cfg_dict["yt_downloader"]["video_formats"]
         preferred_video_format = cfg_dict["yt_downloader"]["preferred_video_format"]
         preferred_audio_codec = cfg_dict["yt_downloader"]["preferred_audio_codec"]
+        ffmpeg_location = cfg_dict["yt_downloader"]["ffmpeg_location"]
         max_video_duration = cfg_dict["yt_downloader"]["max_video_duration"]
 
         # telegram bot options
@@ -106,6 +106,7 @@ def run_bot(botkey, cfg_path = "cfg/options.cfg"):
     video_formats=video_formats,
     preferred_video_format=preferred_video_format,
     preferred_audio_codec=preferred_audio_codec,
+    ffmpeg_location=ffmpeg_location,
     max_video_duration=max_video_duration
     )
 
@@ -172,7 +173,7 @@ def run_bot(botkey, cfg_path = "cfg/options.cfg"):
         context.bot.send_video(chat_id=update.message.chat.id, video=open(path, 'rb'), timeout=timeout_video)
 
 
-    
+    logger.info("Bot started, have a good downloading...")
     updater = Updater(botkey, use_context=True)
     dp = updater.dispatcher
 
