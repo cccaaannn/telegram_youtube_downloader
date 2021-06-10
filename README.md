@@ -1,11 +1,21 @@
-## **telegram_youtube_downloader**
+# Telegram YouTube downloader
 ---
-Telegram bot for downloading and sending youtube videos.
+Telegram bot for downloading and sending YouTube videos.
 
-![](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?style=flat-square) [![GitHub license](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?style=flat-square)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE)
+![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?style=flat-square) ![](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?style=flat-square) [![GitHub license](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?style=flat-square)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE)
 
 
-### **Bot commands**
+## **Table of contents**
+- [Bot commands](#Bot-commands)
+- [Setting it up](#Setting-it-up)
+    - [Ubuntu](#Ubuntu)
+    - [Windows](#Windows)
+- [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key)
+- [Configurations](#Configurations)
+
+</br>
+
+## Bot commands
 - /help
 - /formats
 - /audio "youtube link"
@@ -13,27 +23,128 @@ Telegram bot for downloading and sending youtube videos.
 
 <br/>
 
-### **Setting it up**
-- Download ffmpeg for your os from [ffmpeg.org](https://ffmpeg.org/).
-- Put ffmpeg files in the ffmpeg folder in the project.
-- Install requirements. (some libs also available for offline download under libs folder)
-- Get a telegram bot key.
-- Pass the key to the run_bot function.
-- It will work. (I hope 🤷🏻‍♂️)
+## Setting it up
+
+### Ubuntu
+1. Get a telegram bot key.
+
+2. Install ffmpeg
+```shell
+sudo apt update
+sudo apt upgrade -y
+sudo apt install ffmpeg -y
+```
+
+3. Install python and virtualenv
+```shell
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt install python3.7 -y
+
+sudo apt install python3-virtualenv -y
+```
+
+4. Add your bot key to environment. Also check the [alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key).
+```shell
+export TELEGRAM_BOT_KEY=<YOUR_BOT_KEY>
+source /etc/environment
+```
+
+5. Install the repository and run the bot 
+```shell
+# Install repository
+git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
+cd telegram_youtube_downloader
+
+# Create virtualenv
+virtualenv -p /usr/bin/python3.7 venv
+source venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+
+# Run
+cd src
+python run.py -e
+```
+
+5. Alternatively, you can run the bot on a terminal screen session.
+```shell
+# Install screen and create session
+sudo apt install screen -y
+screen -S telegram_ytd_bot
+
+# Install repository
+git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
+cd telegram_youtube_downloader
+
+# Create virtualenv
+virtualenv -p /usr/bin/python3.7 venv
+source venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+
+# Run
+cd src
+python run.py -e
+
+# ctrl+a+d to detach from screen session
+```
 
 <br/>
 
-### **Configurations**
-Configuration file contains several options.
-- Logger name, file path-name, log level.
+### Windows
+
+1. Get a telegram bot key.
+2. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
+3. Put these ffmpeg files "`ffmpeg.exe,ffprobe.exe,ffplay.exe`" in the **src folder** or specify a folder path for ffmpeg from the `src/cfg/options.cfg`. [configurations](#Configurations).
+4. Install python from [python.org](https://www.python.org/downloads/).
+5. Install requirements.
+```shell
+pip install -r requirements.txt
+```
+7. Run the `src/run.py` script from terminal/cmd. Also check [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key).
+
+```shell
+python run.py -k <YOUR_BOT_KEY>
+```
+
+<br/>
+
+## Alternative ways to pass the bot key
+```shell
+# With environment
+export TELEGRAM_BOT_KEY=<YOUR_BOT_KEY>
+source /etc/environment
+python run.py --use_env
+
+# With file
+python run.py --use_file <FILE_PATH_FOR_KEY>
+
+# Directly
+python run.py --use_key <YOUR_BOT_KEY>
+```
+
+<br/>
+
+## Configurations
+Configuration file `src/cfg/options.cfg` contains several options.
+- **ffmpeg path**. Ex: `"ffmpeg_location": "ffmpeg/"`
+    - If you are using a package manager to download ffmpeg leave this empty.
+
+- Maximum allowed video duration in seconds. Ex: `"max_video_duration": 1200`
+
+- Audio and video sending timeout intervals in milliseconds.  Ex: `"timeout_video": 300000`
+    - If you are running this on a slow internet, increase those.
+
+- Preferred video format and audio codec. Ex: `"preferred_video_format": "mp4"`
+    - It is not guaranteed that this format will be downloaded since it may not exists. Check  [youtube_dl](https://youtube-dl.org/).
+
+- Video formats and their command names. 
+    - For more video formats youtube_dl
+documentations [youtube_dl](https://youtube-dl.org/).
+
 - Bad chars and their replacements. (mostly for windows)
-- Video formats and their command names. (for more video formats youtube_dl documentations [youtube_dl](https://youtube-dl.org/))
-- Preferred video format and audio codec.
-- Audio and video sending timeout intervals. (if you are running this on a slow internet, increase those)
-- Maximum allowed video duration.
-- Function usage descriptions.
-- Temp file location.
 
-
-
+- Logger name, file path, log level.
 
