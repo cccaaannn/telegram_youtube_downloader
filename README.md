@@ -97,7 +97,7 @@ python run.py -e
 
 1. Get a telegram bot key.
 2. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
-3. Put these ffmpeg files "`ffmpeg.exe,ffprobe.exe,ffplay.exe`" in the **src folder** or specify a folder path for ffmpeg from the `src/cfg/options.cfg`. [configurations](#Configurations).
+3. Put these ffmpeg files "`ffmpeg.exe`, `ffprobe.exe`, `ffplay.exe`" in the **src folder** or specify a folder path for ffmpeg from the `src/cfg/options.cfg`. [configurations](#Configurations).
 4. Install python from [python.org](https://www.python.org/downloads/).
 5. Install requirements.
 ```shell
