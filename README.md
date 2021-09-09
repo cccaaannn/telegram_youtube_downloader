@@ -1,6 +1,6 @@
 # Telegram YouTube downloader
 ---
-Telegram bot for downloading and sending YouTube videos.
+Telegram bot that downloads YouTube videos.
 
 ![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?style=flat-square) ![](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?style=flat-square) [![GitHub license](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?style=flat-square)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE)
 
@@ -8,6 +8,7 @@ Telegram bot for downloading and sending YouTube videos.
 ## **Table of contents**
 - [Bot commands](#Bot-commands)
 - [Setting it up](#Setting-it-up)
+    - [Docker](#Docker)
     - [Ubuntu](#Ubuntu)
     - [Windows](#Windows)
 - [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key)
@@ -17,13 +18,38 @@ Telegram bot for downloading and sending YouTube videos.
 
 ## Bot commands
 - /help
+    - Shows help text.
 - /formats
+    - Shows supported formats.
 - /audio "youtube link"
+    - Converts video from the link to audio and sends it. 
 - /video "youtube link" or /video 480p "youtube link"
+    - Sends the video with selected resolution.
 
 <br/>
 
 ## Setting it up
+### Docker
+1. Get a telegram bot key.
+2. Install Docker. [docker docs](https://docs.docker.com/engine/install/ubuntu/)
+```shell
+sudo apt update
+sudo apt install docker.io -y
+```
+3. Run the container with your bot key. [docker image](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader)
+```shell
+sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> cccaaannn/telegram_youtube_downloader
+```
+
+#### Or build from source for docker
+```shell
+git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
+cd telegram_youtube_downloader
+docker build -t telegram_youtube_downloader .
+sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> telegram_youtube_downloader
+```
+
+<br>
 
 ### Ubuntu
 1. Get a telegram bot key.
@@ -141,8 +167,7 @@ Configuration file `src/cfg/options.cfg` contains several options.
     - It is not guaranteed that this format will be downloaded since it may not exists. Check  [youtube_dl](https://youtube-dl.org/).
 
 - Video formats and their command names. 
-    - For more video formats youtube_dl
-documentations [youtube_dl](https://youtube-dl.org/).
+    - For more video formats youtube_dl documentations [youtube_dl](https://youtube-dl.org/).
 
 - Bad chars and their replacements. (mostly for windows)
 
