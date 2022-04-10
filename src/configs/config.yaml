@@ -1,0 +1,17 @@
+logger_options:
+  log_path: logs                                  # Can be abs path
+  log_level: 20                                   # info
+
+youtube_downloader_options:
+  preferred_video_format: mp4
+  preferred_audio_codec: mp3
+  max_video_duration_seconds: 600                 # 10 min
+  max_audio_duration_seconds: 7200                # 2 hours
+  max_file_size: 45M                              # Telegram bots can send up to 50M
+  ffmpeg_location: null                           # null will try to get from env as ffmpeg
+
+telegram_bot_options:
+  bot_key_env_variable_name: TELEGRAM_BOT_KEY
+  text_timeout_seconds: 30
+  video_timeout_seconds: 300                      # 5 min  
+  audio_timeout_seconds: 300                      # 5 min

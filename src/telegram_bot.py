@@ -1,204 +1,89 @@
 from telegram.ext import Updater, CommandHandler
-import logging
-import json
 
-# import downloader class
-from youtube_downloader import youtube_downloader
+from telegram_media_sender import TelegramMediaSender
+from youtube_downloader import YoutubeDownloader
+from download_thread import DownloadThread
 
-
-# static values
-cfg_path = "cfg/options.cfg"
-function_usages = {
-    "help": "usage /help",
-    "formats": "usage /formats",
-    "audio": "usage /audio <youtube link>", 
-    "video": "usage /video <youtube link> or /video 480p <youtube link>"
-}
+from utils.logger_factory import LoggerFactory
+from utils.formats import Formats
+from utils.utils import Utils
 
 
-# logger functions
-def create_logger(logger_name, log_file=None, log_level=20):
+class TelegramBot:
+    def __init__(self) -> None:
+        self.__bot_key = Utils.get_telegram_bot_key()
+        self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
 
-    logger = logging.getLogger(logger_name)  
+        self.downloader = YoutubeDownloader()
+        self.media_sender = TelegramMediaSender()
 
-    if(not logger.handlers):
-        logger.setLevel(log_level)
-        
-        # log formatter
-        formatter = logging.Formatter("[%(levelname)s] %(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    def start(self):
+        """Starts pooling (blocking)"""
 
-        # stream handler
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
+        def error(update, context):
+            self.__logger.error(f"Update {update} caused error {context.error}")
 
-        # file handler
-        if(log_file):
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
+        @Utils.telegram_bot_exception_handler(self.__logger, function_usage="/help")
+        def help(update, context):
+            ans = "Commands\n/help\n/formats\n/audio <youtube link>\n/video <youtube link> or /video 480p <youtube link>"
+            update.message.reply_text(ans)
 
-    return logger
+        @Utils.telegram_bot_exception_handler(self.__logger, function_usage="/formats")
+        def formats(update, context):
+            ans = f"Available formats are: {Formats.to_string()}\nTheese are only preferred formats and may not be available for the video."
+            update.message.reply_text(ans)
 
-def command_logger(logger, function_usages):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                logger.info("Function name: {0} User info: {1}".format(func.__name__, args[0].message.from_user))
-                func(*args, **kwargs)
-            except(IndexError, ValueError): 
-                logger.warning("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
-                args[0].message.reply_text(function_usages[func.__name__])
-            except:
-                logger.error("function name: {0} username:{1}".format(func.__name__, args[0].message.from_user.username), exc_info=True)
-                args[0].message.reply_text("something went wrong")
-        return wrapper
-    return decorator
+        @Utils.telegram_bot_exception_handler(self.__logger, function_usage="/audio <youtube link>")
+        def audio(update, context):
+            
+            # If there is no args[0] exception handler decorator will handle it
+            url = context.args[0]
+            chat_id = update.message.chat.id
+
+            update.message.reply_text("⬇️🎧 Download Starting...")
+            
+            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="audio")
+            dt.start()
 
 
-# utilities
-def function_usages_str(function_usages):
-    usages_str = ""
-    for i in function_usages:
-        usages_str += "command: {0} {1}\n".format(i, function_usages[i])
-    return usages_str
+        @Utils.telegram_bot_exception_handler(self.__logger, function_usage="/video <youtube link> or /video 480p <youtube link>")
+        def video(update, context):
 
-def read_cfg_file(cfg_path):
-    try:
-        with open(cfg_path,"r") as file:
-            d = json.load(file)
-        return d
-    except:
-        return 0
+            chat_id = update.message.chat.id
 
-def run_bot(botkey, cfg_path=cfg_path):
+            # Check arguments
+            if(len(context.args) == 2):
+                quality = context.args[0]
+                url = context.args[1]
+                if(quality not in Formats.video_formats):
+                    self.__logger.warning("Video format {quality} is not supported")
+                    raise ValueError()
+            elif(len(context.args) == 1):
+                url = context.args[0]
+                quality = "720p" # Default
+            else:
+                raise ValueError()
 
-    # set options
-    cfg_dict = read_cfg_file(cfg_path)
-    if(cfg_dict):
-        # youtube downloader options
-        yt_downloader_logger_name = cfg_dict["yt_downloader"]["logger"]["logger_name"]
-        yt_downloader_logger_file = cfg_dict["yt_downloader"]["logger"]["logger_file"]
-        yt_downloader_log_level = cfg_dict["yt_downloader"]["logger"]["log_level"]
+            update.message.reply_text("⬇️📽️ Download Starting...")
 
-        video_formats = cfg_dict["yt_downloader"]["download"]["video_formats"]
-        preferred_video_format = cfg_dict["yt_downloader"]["download"]["preferred_video_format"]
-        preferred_audio_codec = cfg_dict["yt_downloader"]["download"]["preferred_audio_codec"]
-        max_video_duration = cfg_dict["yt_downloader"]["download"]["max_video_duration"]
-
-        temp_folder_path = cfg_dict["yt_downloader"]["paths"]["temp_folder_path"]
-        temp_file_name = cfg_dict["yt_downloader"]["paths"]["temp_file_name"]
-        bad_chars = cfg_dict["yt_downloader"]["paths"]["bad_chars"]
-        ffmpeg_location = cfg_dict["yt_downloader"]["paths"]["ffmpeg_location"]
-
-        # telegram bot options
-        telegram_logger_name = cfg_dict["telegram_bot"]["logger"]["logger_name"]
-        telegram_logger_file = cfg_dict["telegram_bot"]["logger"]["logger_file"]
-        telegram_bot_log_level = cfg_dict["telegram_bot"]["logger"]["log_level"]
-        
-        timeout_audio = cfg_dict["telegram_bot"]["timeouts"]["timeout_audio"]
-        timeout_video = cfg_dict["telegram_bot"]["timeouts"]["timeout_video"]
-    else:
-        print("cfg file is broken")
-        return
+            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="video", quality=quality)
+            dt.start()
 
 
-    # set logger
-    logger = create_logger(telegram_logger_name, log_file=telegram_logger_file, log_level=telegram_bot_log_level)
+        self.__logger.info("Starting...")
+        updater = Updater(self.__bot_key, use_context=True)
+        dp = updater.dispatcher
+        self.__logger.info("Bot started, good downloading...")
 
-    # create downloader object
-    ytd = youtube_downloader(
-    logger_name=yt_downloader_logger_name,
-    log_file=yt_downloader_logger_file,
-    log_level=yt_downloader_log_level, 
-    temp_folder_path=temp_folder_path,
-    temp_file_name=temp_file_name,
-    bad_chars=bad_chars,
-    video_formats=video_formats,
-    preferred_video_format=preferred_video_format,
-    preferred_audio_codec=preferred_audio_codec,
-    ffmpeg_location=ffmpeg_location,
-    max_video_duration=max_video_duration
-    )
+        # command handler
+        dp.add_handler(CommandHandler("help", help))
+        dp.add_handler(CommandHandler("formats", formats))
+        dp.add_handler(CommandHandler("audio", audio, pass_args=True))
+        dp.add_handler(CommandHandler("video", video, pass_args=True))
 
-    
-    # telegram functions
-    def error(update, context):
-        """Log Errors caused by Updates."""
-        logger.error('Update "%s" caused error "%s"', update, context.error)
+        # error handler
+        dp.add_error_handler(error)
 
-    @command_logger(logger, function_usages)
-    def help(update, context):
-        """Send a message when the command /help is issued."""
-        usages_str = function_usages_str(function_usages)
-        update.message.reply_text(usages_str)
-
-    @command_logger(logger, function_usages)
-    def formats(update, context):
-        """Sends video download formats"""
-        formats = ytd.get_video_formats()
-        update.message.reply_text(formats)
-
-    @command_logger(logger, function_usages)
-    def audio(update, context):
-
-        link = context.args[0]
-
-        # download
-        update.message.reply_text("please wait...")
-        status, path = ytd.download(link, dl_type="audio")
-
-        # send error mesages
-        if(not status):
-            update.message.reply_text(path)
-            return
-
-        # send file
-        update.message.reply_text("sending...")
-        context.bot.send_audio(chat_id=update.message.chat.id, audio=open(path, 'rb'), timeout=timeout_audio)
-
-    @command_logger(logger, function_usages)
-    def video(update, context):
-        
-        if(len(context.args) == 2):
-            quality = context.args[0]
-            link = context.args[1]
-        elif(len(context.args) == 1):
-            link = context.args[0]
-            quality = "default"
-        else:
-            update.message.reply_text(function_usages["video"])
-            return
-
-        # download
-        update.message.reply_text("please wait...")
-        status, path = ytd.download(link, dl_type="video", dl_format=quality)
-
-        # send error mesages
-        if(not status):
-            update.message.reply_text(path)
-            return
-
-        # send file
-        update.message.reply_text("sending...")
-        context.bot.send_video(chat_id=update.message.chat.id, video=open(path, 'rb'), timeout=timeout_video)
-
-
-    logger.info("Bot started, have a good downloading...")
-    updater = Updater(botkey, use_context=True)
-    dp = updater.dispatcher
-
-    # command handler
-    dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("formats", formats))
-    dp.add_handler(CommandHandler("audio", audio, pass_args=True))
-    dp.add_handler(CommandHandler("video", video, pass_args=True))
-
-    # error handler
-    dp.add_error_handler(error)
-
-    # start bot
-    updater.start_polling()
-    updater.idle()
-
-
+        # start bot
+        updater.start_polling()
+        updater.idle()
