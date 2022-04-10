@@ -1,18 +1,17 @@
 FROM ubuntu
 
-# install system dependencies
+# Install system dependencies
 RUN apt-get update
 RUN apt-get install ffmpeg -y
 RUN apt-get install python3 -y
 RUN apt-get install python3-pip -y
 
-# copy app
-COPY . /home/telegram_youtube_downloader
+# Copy app
+COPY . /telegram_youtube_downloader
 
-# install python dependencies
-WORKDIR /home/telegram_youtube_downloader
+# Install python dependencies
+WORKDIR /telegram_youtube_downloader
 RUN pip3 install -r requirements.txt
 
-# run
-WORKDIR /home/telegram_youtube_downloader/src
-CMD ["python3", "run.py", "-e"]
+# Run
+CMD ["python3", "src/telegram_youtube_downloader.py"]
