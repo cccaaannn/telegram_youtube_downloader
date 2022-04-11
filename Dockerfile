@@ -14,4 +14,4 @@ WORKDIR /telegram_youtube_downloader
 RUN pip3 install -r requirements.txt
 
 # Run
-CMD ["python3", "src/telegram_youtube_downloader.py"]
+CMD ["python3", "telegram_youtube_downloader"]

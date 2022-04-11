@@ -12,8 +12,8 @@ class Formats():
     @classmethod
     def to_string(cls):
         formats_str = ""
-        for index, format in enumerate(cls.__video_formats.keys()):
+        for index, format in enumerate(cls.video_formats.keys()):
             formats_str += f"'{format}'"
-            if(len(cls.__video_formats.keys())-1 != index):
+            if(len(cls.video_formats.keys())-1 != index):
                 formats_str += ", "
         return formats_str
