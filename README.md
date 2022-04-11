@@ -2,7 +2,7 @@
 ---
 Multithreaded Telegram bot that downloads YouTube videos, you can run it with [single](#Docker) command.
 
-![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge) ![GitHub repo size](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?color=purple&style=for-the-badge) [![GitHub](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?color=green&style=for-the-badge)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge)](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader)
+![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge) ![GitHub repo size](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?color=purple&style=for-the-badge) [![GitHub](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?color=green&style=for-the-badge)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge)](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader) [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/cccaaannn/telegram_youtube_downloader/latest?color=orange&style=for-the-badge)](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader)
 
 ## Table of contents
 - [Demo](#Demo)
