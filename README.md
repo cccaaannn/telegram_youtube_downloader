@@ -1,11 +1,11 @@
 # Telegram YouTube downloader
 ---
-Telegram bot that downloads YouTube videos.
+Multithreaded Telegram bot that downloads YouTube videos, you can run it with [single](#Docker) command.
 
-![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?style=flat-square) ![](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?style=flat-square) [![GitHub license](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?style=flat-square)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE)
+![GitHub top language](https://img.shields.io/github/languages/top/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge) ![GitHub repo size](https://img.shields.io/github/repo-size/cccaaannn/telegram_youtube_downloader?color=purple&style=for-the-badge) [![GitHub](https://img.shields.io/github/license/cccaaannn/telegram_youtube_downloader?color=green&style=for-the-badge)](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cccaaannn/telegram_youtube_downloader?color=blue&style=for-the-badge)](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader)
 
-
-## **Table of contents**
+## Table of contents
+- [Demo](#Demo)
 - [Bot commands](#Bot-commands)
 - [Setting it up](#Setting-it-up)
     - [Docker](#Docker)
@@ -14,17 +14,16 @@ Telegram bot that downloads YouTube videos.
 - [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key)
 - [Configurations](#Configurations)
 
-</br>
+## Demo
+<img src="https://github.com/cccaaannn/readme_media/blob/master/media/telegram_youtube_downloader/gifs/example_download_audio.gif?raw=true" alt="drawing" width="250"/> <img src="https://github.com/cccaaannn/readme_media/blob/master/media/telegram_youtube_downloader/gifs/example_download_video.gif?raw=true" alt="drawing" width="253"/>
+
+<br/>
 
 ## Bot commands
-- /help
-    - Shows help text.
-- /formats
-    - Shows supported formats.
-- /audio "youtube link"
-    - Converts video from the link to audio and sends it. 
-- /video "youtube link" or /video 480p "youtube link"
-    - Sends the video with selected resolution.
+- `/help`
+- `/formats`
+- `/audio` \<youtube link>
+- `/video` \<youtube link> or `/video` 1080p \<youtube link>
 
 <br/>
 
@@ -38,29 +37,23 @@ sudo apt install docker.io -y
 ```
 3. Run the container with your bot key. [docker image](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader)
 ```shell
-sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> cccaaannn/telegram_youtube_downloader
+sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> cccaaannn/telegram_youtube_downloader:latest
 ```
-
-#### Or build from source for docker
+Also you can map logs to a volume.
 ```shell
-git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
-cd telegram_youtube_downloader
-docker build -t telegram_youtube_downloader .
-sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> telegram_youtube_downloader
+sudo docker run -d --name telegram_youtube_downloader -e TELEGRAM_BOT_KEY=<YOUR_BOT_KEY> -v /home/can/logs:/telegram_youtube_downloader/logs cccaaannn/telegram_youtube_downloader:latest
 ```
 
 <br>
 
 ### Ubuntu
 1. Get a telegram bot key.
-
 2. Install ffmpeg
 ```shell
 sudo apt update
 sudo apt upgrade -y
 sudo apt install ffmpeg -y
 ```
-
 3. Install python and virtualenv
 ```shell
 sudo add-apt-repository ppa:deadsnakes/ppa -y
@@ -68,13 +61,11 @@ sudo apt install python3.7 -y
 
 sudo apt install python3-virtualenv -y
 ```
-
 4. Add your bot key to environment. Also check the [alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key).
 ```shell
 export TELEGRAM_BOT_KEY=<YOUR_BOT_KEY>
 source /etc/environment
 ```
-
 5. Install the repository and run the bot 
 ```shell
 # Install repository
@@ -89,32 +80,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Run
-cd src
-python run.py -e
-```
-
-5. Alternatively, you can run the bot on a terminal screen session.
-```shell
-# Install screen and create session
-sudo apt install screen -y
-screen -S telegram_ytd_bot
-
-# Install repository
-git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
-cd telegram_youtube_downloader
-
-# Create virtualenv
-virtualenv -p /usr/bin/python3.7 venv
-source venv/bin/activate
-
-# Install requirements
-pip install -r requirements.txt
-
-# Run
-cd src
-python run.py -e
-
-# ctrl+a+d to detach from screen session
+python telegram_youtube_downloader
 ```
 
 <br/>
@@ -123,53 +89,53 @@ python run.py -e
 
 1. Get a telegram bot key.
 2. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
-3. Put these ffmpeg files "`ffmpeg.exe`, `ffprobe.exe`, `ffplay.exe`" in the **src folder** or specify a folder path for ffmpeg from the `src/cfg/options.cfg`. [configurations](#Configurations).
+3. Add `ffmpeg` to environment or add the path to `telegram_youtube_downloader\configs\config.yaml`. [configurations](#Configurations).
 4. Install python from [python.org](https://www.python.org/downloads/).
 5. Install requirements.
 ```shell
 pip install -r requirements.txt
 ```
-7. Run the `src/run.py` script from terminal/cmd. Also check [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key).
+7. Run on cmd/terminal. Also check [Alternative ways to pass the bot key](#Alternative-ways-to-pass-the-bot-key).
 
 ```shell
-python run.py -k <YOUR_BOT_KEY>
+python telegram_youtube_downloader -k <YOUR_BOT_KEY>
 ```
 
 <br/>
 
 ## Alternative ways to pass the bot key
 ```shell
-# With environment
-export TELEGRAM_BOT_KEY=<YOUR_BOT_KEY>
-source /etc/environment
-python run.py --use_env
+# With environment (Default) "TELEGRAM_BOT_KEY" key must be presents on environment variables.
+python telegram_youtube_downloader
 
 # With file
-python run.py --use_file <FILE_PATH_FOR_KEY>
+python telegram_youtube_downloader -f <FILE_PATH_FOR_KEY>
 
 # Directly
-python run.py --use_key <YOUR_BOT_KEY>
+python telegram_youtube_downloader -k <YOUR_BOT_KEY>
 ```
 
 <br/>
 
 ## Configurations
-Configuration file `src/cfg/options.cfg` contains several options.
-- **ffmpeg path**. Ex: `"ffmpeg_location": "ffmpeg/"`
-    - If you are using a package manager to download ffmpeg leave this empty.
+Configuration file `telegram_youtube_downloader\configs\config.yaml`.
+```yaml
+logger_options:
+  log_path: logs                                  # Can be abs path
+  log_level: 20                                   # info
 
-- Maximum allowed video duration in seconds. Ex: `"max_video_duration": 1200`
+youtube_downloader_options:
+  preferred_video_format: mp4
+  preferred_audio_codec: mp3
+  max_video_duration_seconds: 600                 # 10 min
+  max_audio_duration_seconds: 7200                # 2 hours
+  max_file_size: 45M                              # Telegram bots can send up to 50M
+  ffmpeg_location: null                           # null will try to get from env (as ffmpeg)
 
-- Audio and video sending timeout intervals in milliseconds.  Ex: `"timeout_video": 300000`
-    - If you are running this on a slow internet, increase those.
-
-- Preferred video format and audio codec. Ex: `"preferred_video_format": "mp4"`
-    - It is not guaranteed that this format will be downloaded since it may not exists. Check  [youtube_dl](https://youtube-dl.org/).
-
-- Video formats and their command names. 
-    - For more video formats youtube_dl documentations [youtube_dl](https://youtube-dl.org/).
-
-- Bad chars and their replacements. (mostly for windows)
-
-- Logger name, file path, log level.
+telegram_bot_options:
+  bot_key_env_variable_name: TELEGRAM_BOT_KEY
+  text_timeout_seconds: 30
+  video_timeout_seconds: 300                      # 5 min  
+  audio_timeout_seconds: 300                      # 5 min
+```
 
