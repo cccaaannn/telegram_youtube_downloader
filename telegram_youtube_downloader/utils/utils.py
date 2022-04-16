@@ -3,6 +3,8 @@ import os
 
 import yaml
 
+from utils.statics import Statics
+
 
 class Utils:
     @staticmethod
@@ -20,7 +22,11 @@ class Utils:
 
     @staticmethod
     def get_telegram_bot_key():
-        return os.environ['TELEGRAM_BOT_KEY']    
+        return os.environ.get(Statics.TELEGRAM_BOT_ENVIRONMENT_NAME, None)
+
+    @staticmethod
+    def get_youtube_api_key():
+        return os.environ.get(Statics.YOUTUBE_API_ENVIRONMENT_NAME, None)
 
     @staticmethod
     def path_type(p):
@@ -30,18 +36,11 @@ class Utils:
             raise argparse.ArgumentTypeError("File does not exists")
 
     @staticmethod
-    def telegram_bot_exception_handler(logger, function_usage):
-        """Logs function and error sends message on error"""
-        def decorator(func):
-            def wrapper(*args, **kwargs):
-                try:
-                    logger.info(f"Function: {func.__name__} User: {args[0].message.from_user}")
-                    func(*args, **kwargs)
-                except(IndexError, ValueError):
-                    logger.warning(f"function: {func.__name__} User: {args[0].message.from_user}")
-                    args[0].message.reply_text(f"Usage {function_usage}")
-                except:
-                    logger.error(f"function: {func.__name__} User:{args[0].message.from_user}", exc_info=True)
-                    args[0].message.reply_text("Something went wrong")
-            return wrapper
-        return decorator
+    def video_title_formatter(title, duration, title_length=45):
+        formatted_title = f"({duration}) {title}"
+
+        if(len(formatted_title) > title_length):
+            formatted_title = formatted_title[:title_length]
+            formatted_title += "..."
+
+        return formatted_title
