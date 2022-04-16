@@ -24,9 +24,9 @@ Multithreaded Telegram bot that downloads YouTube videos, you can run it with [s
 - `/about`
 - `/help`
 - `/formats`
-- `/audio` \<youtube link>
-- `/video` \<youtube link> or `/video` 1080p \<youtube link>
-- `/search` \<query>
+- `/audio` \<youtube link> or `/a` \<youtube link>
+- `/video` \<youtube link> or `/v` 1080p \<youtube link>
+- `/search` \<query> or `/s` \<query>
 
 <br/>
 
@@ -110,7 +110,7 @@ python telegram_youtube_downloader
 ```shell
 pip install -r requirements.txt
 ```
-7. Run on cmd/terminal. Also check [Alternative ways to pass keys](#Alternative-ways-to-pass-keys).
+7. Run on cmd/terminal. Also check [alternative ways to pass keys](#Alternative-ways-to-pass-keys).
 
 ```shell
 python telegram_youtube_downloader -k <YOUR_BOT_KEY>
