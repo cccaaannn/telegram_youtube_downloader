@@ -22,6 +22,7 @@ class YoutubeDlOptions:
             "outtmpl": os.path.join(save_dir, "TEMP" + ".%(ext)s"),
 
             # For custom downloader class 
+            "dl_type": "audio",
             "save_dir": save_dir,
             "max_duration_seconds": self.__dynamic_options["max_audio_duration_seconds"]
         }
@@ -39,6 +40,7 @@ class YoutubeDlOptions:
             "outtmpl": os.path.join(save_dir, "TEMP" + ".%(ext)s"),
 
             # For custom downloader class 
+            "dl_type": "video",
             "save_dir": save_dir,
             "max_duration_seconds": self.__dynamic_options["max_video_duration_seconds"]
         }

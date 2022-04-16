@@ -1,3 +1,4 @@
+import datetime
 import shutil
 import re
 import os
@@ -8,11 +9,12 @@ from youtube_dl_options import YoutubeDlOptions
 from errors.download_error import DownloadError
 from utils.logger_factory import LoggerFactory
 from utils.formats import Formats
+from utils.utils import Utils
 
 
 class YoutubeDownloader:
     def __init__(self) -> None:
-        # self.__download_options = Utils.read_cfg_file()["youtube_downloader_options"]
+        self.__download_options = Utils.read_cfg_file()["youtube_downloader_options"]
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.__bad_chars = {'"': '\'', '<': '', '>': '', ':': '', '/': '', '\\': '', '|': '', '?': '', '*': ''}
 
@@ -64,7 +66,7 @@ class YoutubeDownloader:
 
     def __download(self, url, options):
         """Download base for different content types"""
-        self.__logger.info(f"Downloading from url: {url}")
+        self.__logger.info(f"Downloading from url: {url} with options: {options}")
 
         # Check the url
         match = self.__is_youtube_url(url)
@@ -79,8 +81,9 @@ class YoutubeDownloader:
                 # Get video info for checking duration
                 meta = ydl.extract_info(url, download=False)
                 max_duration = options["max_duration_seconds"]
+                dl_type = options["dl_type"]
                 if(meta["duration"] > max_duration):
-                    raise DownloadError(f"Video duration exceeds defined limit of {max_duration} seconds")
+                    raise DownloadError(f"Maximum allowed video duration for '{dl_type}' download is {str(datetime.timedelta(seconds=max_duration))}")
 
                 # Download
                 meta = ydl.extract_info(url, download=True)
@@ -103,13 +106,21 @@ class YoutubeDownloader:
             raise DownloadError()
 
 
+    def get_max_video_duration(self):
+        return str(datetime.timedelta(seconds=self.__download_options["max_video_duration_seconds"]))
+
+    def get_max_audio_duration(self):
+        return str(datetime.timedelta(seconds=self.__download_options["max_audio_duration_seconds"]))
+
     def download_audio(self, url):
         options = YoutubeDlOptions()
         path = self.__download(url, options.to_audio())
         return path
 
+    def download_video(self, url, video_format="default"):
+        if(video_format == "default"):
+            video_format = self.__download_options["default_video_quality"]
 
-    def download_video(self, url, video_format="720p"):
         if(video_format not in Formats.video_formats):
             self.__logger.warning(f"Video format {video_format} is not supported")
             raise DownloadError(f"Video format {video_format} is not supported")

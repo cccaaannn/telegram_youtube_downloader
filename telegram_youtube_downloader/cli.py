@@ -6,12 +6,12 @@ from telegram_bot import TelegramBot
 
 from utils.logger_factory import LoggerFactory
 from utils.utils import Utils
+from utils.statics import Statics
 
 
 class Cli:
     def __init__(self) -> None:
-        self.telegram_options = Utils.read_cfg_file()["telegram_bot_options"]
-        self.bot_key_env_name = self.telegram_options["bot_key_env_variable_name"]
+        self.bot_key_env_name = Statics.TELEGRAM_BOT_ENVIRONMENT_NAME
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__, file_handler=False)
 
     def start(self):
