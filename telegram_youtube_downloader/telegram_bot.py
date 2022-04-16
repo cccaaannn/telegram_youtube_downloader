@@ -155,7 +155,7 @@ class TelegramBot:
             if(data == "{{video}}"):
                 query.edit_message_text(text=f"⬇️📽️ Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
                 
-                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="video", quality="720p")
+                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="video", quality="default")
                 dt.start()
 
 

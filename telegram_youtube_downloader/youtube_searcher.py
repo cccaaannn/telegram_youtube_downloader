@@ -14,8 +14,8 @@ class YoutubeSearcher:
         self.__youtube_url_base = "https://www.youtube.com/watch?v="
         self.__is_initialized = False
         if(self.__api_key):
+            self.__youtube = build('youtube', 'v3', developerKey=self.__api_key)            
             self.__is_initialized = True
-            self.__youtube = build('youtube', 'v3', developerKey=self.__api_key)
 
 
     def __getVideoDuration(self, videoId):

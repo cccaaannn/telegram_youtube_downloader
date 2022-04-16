@@ -21,6 +21,15 @@ class Utils:
             return content
 
     @staticmethod
+    def read_file_lines(file_name):
+        lines = []
+        with open(file_name,'r', encoding='utf-8') as file:
+            content = file.readlines()
+            for line in content:
+                lines.append(line.strip())
+            return lines
+
+    @staticmethod
     def get_telegram_bot_key():
         return os.environ.get(Statics.TELEGRAM_BOT_ENVIRONMENT_NAME, None)
 
