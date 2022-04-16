@@ -1,1 +1,1 @@
-from errno import *
+from errors import *
