@@ -7,7 +7,7 @@ youtube_downloader_options:
   preferred_audio_codec: mp3
   default_video_quality: 720p
   max_video_duration_seconds: 1200                # 20 min
-  max_audio_duration_seconds: 7200                # 2 hours
+  max_audio_duration_seconds: 3000                # 50 min
   max_file_size: 45M                              # Telegram bots can send up to 50M
   ffmpeg_location: null                           # null will try to get from env as ffmpeg
 

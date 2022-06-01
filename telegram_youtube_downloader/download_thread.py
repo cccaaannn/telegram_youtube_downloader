@@ -62,14 +62,14 @@ class DownloadThread(threading.Thread):
             else:
                 pass
 
-        except DownloadError or SendError as e:
+        except (DownloadError, SendError) as e:
             self.__logger.warn(str(e))
             # Try to answer on error
             try:
                 self.media_sender.send_text(chat_id=self.chat_id, text=f"💩 {str(e)}")
             except:
                 pass
-        except:
+        except Exception as e:
             self.__logger.error("Unknown error", exc_info=True)
             # Try to answer on error
             try:

@@ -29,6 +29,11 @@ class TelegramMediaSender:
 
             resp = requests.post(url, data=payload, timeout=timeout).json()
             self.__logger.info(resp)
+
+            if(not resp['ok']):
+                self.__logger.warn(resp)
+                raise SendError(f"Could not send message, Telegram: {resp['description']}")
+
         except Exception:
             self.__logger.error("Unknown error", exc_info=True)
             raise SendError()
@@ -53,7 +58,11 @@ class TelegramMediaSender:
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
                 self.__logger.info(resp)
 
-        except requests.Timeout or requests.ConnectionError:
+                if(not resp['ok']):
+                    self.__logger.warn(resp)
+                    raise SendError(f"Could not send audio, Telegram: {resp['description']}")
+
+        except (requests.Timeout, requests.ConnectionError):
             self.__logger.warn("Could not send audio, timeout")
             raise SendError("Could not send audio, timeout")
 
@@ -88,7 +97,11 @@ class TelegramMediaSender:
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
                 self.__logger.info(resp)
 
-        except requests.Timeout or requests.ConnectionError:
+                if(not resp['ok']):
+                    self.__logger.warn(resp)
+                    raise SendError(f"Could not send video, Telegram: {resp['description']}")
+
+        except (requests.Timeout, requests.ConnectionError):
             self.__logger.warn("Could not send video, timeout")
             raise SendError("Could not send video, timeout")
 
