@@ -1,3 +1,5 @@
+import textwrap
+
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -6,21 +8,30 @@ from youtube_downloader import YoutubeDownloader
 from youtube_searcher import YoutubeSearcher
 from download_thread import DownloadThread
 
-from annotations.telegram_bot_error_handler import TelegramBotErrorHandler
+from decorators.telegram_bot_error_handler import TelegramBotErrorHandler
 from utils.logger_factory import LoggerFactory
 from errors.search_error import SearchError
-from utils.formats import Formats
-from utils.utils import Utils
+from utils.api_key_utils import ApiKeyUtils
+from utils.content_type import ContentType
 
 
 class TelegramBot:
     def __init__(self) -> None:
-        self.__bot_key = Utils.get_telegram_bot_key()
+        self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
 
         self.downloader = YoutubeDownloader()
         self.media_sender = TelegramMediaSender()
         self.youtube_searcher = YoutubeSearcher()
+
+    @staticmethod
+    def __video_title_formatter(title, duration, title_length=45) -> str:
+        """Formats video title for search menu. Ex: test..."""
+        formatted_title = f"({duration}) {title}"
+        if(len(formatted_title) > title_length):
+            formatted_title = formatted_title[:title_length]
+            formatted_title += "..."
+        return formatted_title
 
     def start(self):
         """Starts pooling (blocking)"""
@@ -30,61 +41,98 @@ class TelegramBot:
 
         @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/about")
         def about(update, context):
-            ans = "Telegram YouTube downloader is an open source project visit projects GitHub page\nhttps://github.com/cccaaannn/telegram_youtube_downloader\n\n Author Can Kurt"
+            ans = textwrap.dedent("""\
+                [About]
+
+                Telegram YouTube downloader is an open source project visit projects GitHub page
+                https://github.com/cccaaannn/telegram_youtube_downloader
+
+                Author Can Kurt""")
             update.message.reply_text(ans)
 
         @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/help")
         def help(update, context):
-            ans = f"Commands\n\n/about\n/help\n/formats\n/audio <youtube link> Max: ({self.downloader.get_max_audio_duration()})\n/video <youtube link> Max: ({self.downloader.get_max_video_duration()})\n/video 480p <youtube link>\n/search <query> (Makes youtube search)\nMaximum durations are set by the operator of the bot.\n\nIt is also possible to use main commands with their first letter.\n/a <youtube link>\n/v <youtube link>\n/s <query>"
+            ans = textwrap.dedent(f"""\
+                [Commands]
+
+                [Video download] Max: ({self.downloader.get_max_video_duration()})
+                /video <download url>
+                /video <format> <download url>
+                /v <download url>
+
+                [Audio download] Max: ({self.downloader.get_max_audio_duration()})
+                /audio <download url>
+                /audio <format> <download url>
+                /a <download url>
+
+                [Search]
+                /search <query>
+                /s <query>
+
+                [Utilities]
+                /about
+                /help
+                /formats
+                /sites
+
+                Maximum durations are set by the operator of the bot.""")
             update.message.reply_text(ans)
 
         @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/formats")
         def formats(update, context):
-            ans = f"Available formats are: {Formats.to_string()}\nTheese are only preferred formats and may not be available for the video."
+            ans = f"[Available formats]\n\n[audio]\n{self.downloader.get_download_formats(ContentType.AUDIO)}\n[video]\n{self.downloader.get_download_formats(ContentType.VIDEO)}\nThese are only preferred formats and may not be available for the video."
             update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/audio <youtube link>")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/sites")
+        def sites(update, context):
+            ans = f"[Supported sites]\n\n{self.downloader.get_allowed_url_names()}"
+            update.message.reply_text(ans)
+
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats")
         def audio(update, context):
-            
-            # If there is no args[0] exception handler decorator will handle it
-            url = context.args[0]
-            chat_id = update.message.chat.id
-
-            update.message.reply_text("⬇️🎧 Download Starting...")
-            
-            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="audio")
-            dt.start()
-
-
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/video <youtube link> or /video 480p <youtube link>")
-        def video(update, context):
+            if(len(context.args) > 2 or len(context.args) < 1):
+                raise ValueError()
 
             chat_id = update.message.chat.id
 
             # Check arguments
             if(len(context.args) == 2):
-                quality = context.args[0]
+                dl_format_name = context.args[0]
                 url = context.args[1]
-                if(quality not in Formats.video_formats):
-                    self.__logger.warning(f"Video format {quality} is not supported")
-                    raise ValueError()
-            elif(len(context.args) == 1):
+            if(len(context.args) == 1):
                 url = context.args[0]
-                quality = "default"
-            else:
+                dl_format_name = None
+
+            update.message.reply_text("⬇️🎧 Download Starting...")
+
+            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.AUDIO, dl_format_name=dl_format_name)
+            dt.start()
+
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/video <download url> or /video <format> <download url>\n/formats for available formats")
+        def video(update, context):
+            if(len(context.args) > 2 or len(context.args) < 1):
                 raise ValueError()
+
+            chat_id = update.message.chat.id
+
+            # Check arguments
+            if(len(context.args) == 2):
+                dl_format_name = context.args[0]
+                url = context.args[1]
+            if(len(context.args) == 1):
+                url = context.args[0]
+                dl_format_name = None
 
             update.message.reply_text("⬇️📽️ Download Starting...")
 
-            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="video", quality=quality)
+            dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=dl_format_name)
             dt.start()
-
 
         @TelegramBotErrorHandler.command_handler(self.__logger)
         def search(update, context):
             # Bot can be started without youtube api key
-            if(not self.youtube_searcher.is_initiliazed()):
-                update.message.reply_text("Search is not available")
+            if(not self.youtube_searcher.is_initialized()):
+                update.message.reply_text("Search is not activated by the operator of this bot")
                 return
 
             # Get and validate query from params
@@ -102,16 +150,15 @@ class TelegramBot:
                 update.message.reply_text(str(se))
                 return
 
-            # Fill keyboard and user_data[urls], keyboard's callback_data can not hold url info since it is too large so it is stored in user_data provied by telegram bot library
+            # Fill keyboard and user_data[urls], keyboard's callback_data can not hold url info since it is too large so it is stored in user_data provided by telegram bot library
             context.user_data["urls"] = []
             keyboard = []
 
             for index, result in enumerate(search_result):
                 context.user_data["urls"].append(result["url"])
-                keyboard.append([InlineKeyboardButton(Utils.video_title_formatter(result["title"], result["duration"]), callback_data=index)]) # limmit title size with 50 characters
+                keyboard.append([InlineKeyboardButton(TelegramBot.__video_title_formatter(result["title"], result["duration"]), callback_data=index)]) # limit title size with 50 characters
 
             update.message.reply_text("Choose a video", reply_markup=InlineKeyboardMarkup(keyboard))
-
 
         @TelegramBotErrorHandler.menu_handler(self.__logger)
         def search_video_selection_menu_handler(update, context):
@@ -127,7 +174,6 @@ class TelegramBot:
             context.user_data["selected_url"] = context.user_data["urls"][int(data)]
             keyboard = [[InlineKeyboardButton(f'audio - Max ({self.downloader.get_max_audio_duration()})', callback_data='{{audio}}'), InlineKeyboardButton(f'video - Max ({self.downloader.get_max_video_duration()})', callback_data='{{video}}')]]
             query.edit_message_text(text="Download this video as", reply_markup=InlineKeyboardMarkup(keyboard, one_time_keyboard=True))
-
 
         @TelegramBotErrorHandler.menu_handler(self.__logger)
         def search_download_type_menu_handler(update, context):
@@ -148,16 +194,15 @@ class TelegramBot:
 
             if(data == "{{audio}}"):
                 query.edit_message_text(text=f"⬇️🎧 Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
-                
-                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="audio")
+ 
+                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.AUDIO, dl_format_name=None)
                 dt.start()
 
             if(data == "{{video}}"):
                 query.edit_message_text(text=f"⬇️📽️ Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
-                
-                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type="video", quality="default")
-                dt.start()
 
+                dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=None)
+                dt.start()
 
 
         self.__logger.info("Starting...")
@@ -169,13 +214,14 @@ class TelegramBot:
         dp.add_handler(CommandHandler("about", about))
         dp.add_handler(CommandHandler("help", help))
         dp.add_handler(CommandHandler("formats", formats))
-        
+        dp.add_handler(CommandHandler("sites", sites))
+
         dp.add_handler(CommandHandler("audio", audio, pass_args=True))
         dp.add_handler(CommandHandler("a", audio, pass_args=True))
-        
+
         dp.add_handler(CommandHandler("video", video, pass_args=True))
         dp.add_handler(CommandHandler("v", video, pass_args=True))
-        
+
         dp.add_handler(CommandHandler("search", search))
         dp.add_handler(CommandHandler("s", search))
         dp.add_handler(CallbackQueryHandler(search_video_selection_menu_handler, pattern=r"^(?!{{video}}$|{{audio}}$).*"))  # Everything except {{video}} or {{audio}}

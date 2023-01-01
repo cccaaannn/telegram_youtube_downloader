@@ -3,17 +3,18 @@ import os
 
 import requests
 
-from errors.send_error import SendError
 from utils.logger_factory import LoggerFactory
-from utils.utils import Utils
+from utils.api_key_utils import ApiKeyUtils
+from utils.config_utils import ConfigUtils
+from errors.send_error import SendError
 
 
 class TelegramMediaSender:
     """Custom media sender class for telegrams native api"""
 
     def __init__(self) -> None:
-        self.__telegram_options = Utils.read_cfg_file()["telegram_bot_options"]
-        self.__bot_key = Utils.get_telegram_bot_key()
+        self.__telegram_options = ConfigUtils.read_cfg_file()["telegram_bot_options"]
+        self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
 
     def send_text(self, chat_id, text):

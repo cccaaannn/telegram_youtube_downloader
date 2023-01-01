@@ -1,15 +1,16 @@
 from apiclient.discovery import build
 import isodate
 
-from errors.search_error import SearchError
 from utils.logger_factory import LoggerFactory
-from utils.utils import Utils
+from errors.search_error import SearchError
+from utils.api_key_utils import ApiKeyUtils
+from utils.config_utils import ConfigUtils
 
 
 class YoutubeSearcher:
     def __init__(self) -> None:
-        self.__api_key = Utils.get_youtube_api_key()
-        self.__search_options = Utils.read_cfg_file()["youtube_search_options"]
+        self.__api_key = ApiKeyUtils.get_youtube_api_key()
+        self.__search_options = ConfigUtils.read_cfg_file()["youtube_search_options"]
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.__youtube_url_base = "https://www.youtube.com/watch?v="
         self.__is_initialized = False
@@ -28,7 +29,7 @@ class YoutubeSearcher:
             return "??:??"
 
 
-    def is_initiliazed(self):
+    def is_initialized(self):
         return self.__is_initialized
 
     def search(self, query):
