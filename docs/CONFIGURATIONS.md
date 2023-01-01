@@ -3,13 +3,13 @@
 ---
 
 ## Table of contents
-- [logger_options](#`logger_options`)
-- [telegram_bot_options](#`telegram_bot_options`)
-- [youtube_search_options](#`youtube_search_options`)
-- [youtube_downloader_options](#`youtube_downloader_options`)
-    - [audio_options and video_options](#`audio_options`-and-`video_options`)
-    - [allowed_url_patterns](#`allowed_url_patterns`)
-    - [formats](#`formats`)
+- [logger_options](#logger_options)
+- [telegram_bot_options](#telegram_bot_options)
+- [youtube_search_options](#youtube_search_options)
+- [youtube_downloader_options](#youtube_downloader_options)
+    - [audio_options and video_options](#audio_options-and-video_options)
+    - [allowed_url_patterns](#allowed_url_patterns)
+    - [formats](#formats)
 - [Full config example](#Full-config-example)
 
 <br>
