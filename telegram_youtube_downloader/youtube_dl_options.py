@@ -2,7 +2,7 @@ import pathlib
 import uuid
 import os
 
-from utils.content_type import ContentType
+from statics.content_type import ContentType
 from utils.config_utils import ConfigUtils
 
 

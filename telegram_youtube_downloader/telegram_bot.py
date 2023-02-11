@@ -12,7 +12,7 @@ from decorators.telegram_bot_error_handler import TelegramBotErrorHandler
 from utils.logger_factory import LoggerFactory
 from errors.search_error import SearchError
 from utils.api_key_utils import ApiKeyUtils
-from utils.content_type import ContentType
+from statics.content_type import ContentType
 
 
 class TelegramBot:

@@ -6,7 +6,7 @@ from youtube_downloader import YoutubeDownloader
 
 from errors.download_error import DownloadError
 from utils.logger_factory import LoggerFactory
-from utils.content_type import ContentType
+from statics.content_type import ContentType
 from errors.send_error import SendError
 
 
@@ -69,12 +69,12 @@ class DownloadThread(threading.Thread):
             try:
                 self.media_sender.send_text(chat_id=self.chat_id, text=f"💩 {str(e)}")
             except:
-                self.__logger.error(f"Could not answer for error, {str(e)}", exc_info=True)
+                self.__logger.error(f"User notifying attempt (via message) for an error failed due to another error during message sending, {str(e)}", exc_info=True)
         except Exception as e:
             self.__logger.error("Unknown error", exc_info=True)
             # Try to answer on error
             try:
                 self.media_sender.send_text(chat_id=self.chat_id, text="🤷🏻‍♂️ Unknown error")
             except:
-                self.__logger.error(f"Could not answer for error, {str(e)}", exc_info=True)
+                self.__logger.error(f"User notifying attempt (via message) for an error failed due to another error during message sending, {str(e)}", exc_info=True)
 

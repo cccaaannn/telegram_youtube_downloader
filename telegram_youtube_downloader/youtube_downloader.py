@@ -8,7 +8,7 @@ import yt_dlp as yt
 from youtube_dl_options import YoutubeDlOptions
 from errors.download_error import DownloadError
 from utils.logger_factory import LoggerFactory
-from utils.content_type import ContentType
+from statics.content_type import ContentType
 from utils.config_utils import ConfigUtils
 
 
