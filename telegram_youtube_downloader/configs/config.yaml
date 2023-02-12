@@ -9,6 +9,10 @@ telegram_bot_options:
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
 
+  authorization_options:
+    mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
+    users: []
+
 youtube_search_options:
   max_results: 5                                  # Limit search results with 5
 
