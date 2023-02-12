@@ -1,18 +1,19 @@
 import textwrap
 
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 from telegram_media_sender import TelegramMediaSender
 from youtube_downloader import YoutubeDownloader
 from youtube_searcher import YoutubeSearcher
 from download_thread import DownloadThread
 
+from decorators.telegram_bot_command_interceptor import TelegramBotCommandInterceptor
 from decorators.telegram_bot_error_handler import TelegramBotErrorHandler
 from utils.logger_factory import LoggerFactory
+from statics.content_type import ContentType
 from errors.search_error import SearchError
 from utils.api_key_utils import ApiKeyUtils
-from statics.content_type import ContentType
 
 
 class TelegramBot:
@@ -39,7 +40,8 @@ class TelegramBot:
         def error(update, context):
             self.__logger.error(f"Update {update} caused error {context.error}")
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/about")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="about", function_usage="/about")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "about"})
         def about(update, context):
             ans = textwrap.dedent("""\
                 [About]
@@ -50,8 +52,9 @@ class TelegramBot:
                 Author Can Kurt""")
             update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/help")
-        def help(update, context):
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="help", function_usage="/help")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "help"})
+        def help(update: Update, context: CallbackContext):
             ans = textwrap.dedent(f"""\
                 [Commands]
 
@@ -78,17 +81,20 @@ class TelegramBot:
                 Maximum durations are set by the operator of the bot.""")
             update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="formats", function_usage="/formats")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "formats"})
         def formats(update, context):
             ans = f"[Available formats]\n\n[audio]\n{self.downloader.get_download_formats(ContentType.AUDIO)}\n[video]\n{self.downloader.get_download_formats(ContentType.VIDEO)}\nThese are only preferred formats and may not be available for the video."
             update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/sites")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="sites", function_usage="/sites")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "sites"})
         def sites(update, context):
             ans = f"[Supported sites]\n\n{self.downloader.get_allowed_url_names()}"
             update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="audio", function_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "audio"})
         def audio(update, context):
             if(len(context.args) > 2 or len(context.args) < 1):
                 raise ValueError()
@@ -108,7 +114,8 @@ class TelegramBot:
             dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.AUDIO, dl_format_name=dl_format_name)
             dt.start()
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_usage="/video <download url> or /video <format> <download url>\n/formats for available formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="video", function_usage="/video <download url> or /video <format> <download url>\n/formats for available formats")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "video"})
         def video(update, context):
             if(len(context.args) > 2 or len(context.args) < 1):
                 raise ValueError()
@@ -128,7 +135,8 @@ class TelegramBot:
             dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=dl_format_name)
             dt.start()
 
-        @TelegramBotErrorHandler.command_handler(self.__logger)
+        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="search", function_usage="/search <query>")
+        @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "search"})
         def search(update, context):
             # Bot can be started without youtube api key
             if(not self.youtube_searcher.is_initialized()):
