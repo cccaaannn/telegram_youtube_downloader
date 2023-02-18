@@ -5,6 +5,7 @@
 ## Table of contents
 - [logger_options](#logger_options)
 - [telegram_bot_options](#telegram_bot_options)
+    - [authorization_options](#authorization_options)
 - [youtube_search_options](#youtube_search_options)
 - [youtube_downloader_options](#youtube_downloader_options)
     - [audio_options and video_options](#audio_options-and-video_options)
@@ -34,6 +35,36 @@ telegram_bot_options:
   text_timeout_seconds: 30
   video_timeout_seconds: 300 
   audio_timeout_seconds: 300
+```
+
+### `authorization_options`
+### Authorization has 3 modes
+   - DISABLED: (default) Disable authorization checks altogether which allows everyone to use any command
+   - ALLOW_SELECTED: Block everyone by default and allow only selected group
+   - BLOCK_SELECTED: Allow everyone by default and block selected group
+### Users array used to allow or block users depending on the mode
+### Claims are the individual operations per user to allow or block specific operations
+   - Available claims `about,help,formats,sites,audio,video,search`
+   - `all` can be used to represent all claims
+### This example blocks everyone but user `111` can use `about,help,formats,sites,audio` commands and user `222` can use all commands.
+```yaml
+authorization_options:
+  mode: "ALLOW_SELECTED"
+  users: 
+    - id: 111           # user's telegram id
+      claims: "about,help,formats,sites,audio"
+    - id: 222           # user's telegram id
+      claims: "all"
+```
+### This example allows everyone but user `111` can not use `video` command and user `222` can not use any command.
+```yaml
+authorization_options:
+  mode: "BLOCK_SELECTED"
+  users: 
+    - id: 111           # user's telegram id
+      claims: "video"
+    - id: 222           # user's telegram id
+      claims: "all"
 ```
 
 ---
@@ -137,6 +168,10 @@ telegram_bot_options:
   text_timeout_seconds: 30
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
+
+  authorization_options:
+    mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
+    users: []
 
 youtube_search_options:
   max_results: 5                                  # Limit search results with 5
