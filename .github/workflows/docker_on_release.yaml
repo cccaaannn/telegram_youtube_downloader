@@ -21,4 +21,4 @@ jobs:
         run: docker build -t cccaaannn/telegram_youtube_downloader:${{ github.event.release.tag_name }} .
 
       - name: Push Docker image
-        run: docker push cccaaannn/telegram_youtube_downloader
+        run: docker push cccaaannn/telegram_youtube_downloader:${{ github.event.release.tag_name }}
