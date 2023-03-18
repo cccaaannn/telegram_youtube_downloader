@@ -18,7 +18,7 @@ video_options:
   postprocessor_args: ['-c:v', 'h264_nvenc']
   postprocessors: 
     - key: "FFmpegVideoConvertor"
-	  preferedformat: "mp4"
+      preferedformat: "mp4"
 ```
 
 ### Check the example on Google Colab
