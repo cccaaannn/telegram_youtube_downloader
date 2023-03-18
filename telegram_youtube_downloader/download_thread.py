@@ -11,7 +11,7 @@ from errors.send_error import SendError
 
 
 class DownloadThread(threading.Thread):
-    def __init__(self, downloader: YoutubeDownloader, media_sender: TelegramMediaSender, url: str, chat_id: str, content_type: ContentType, dl_format_name: str | None) -> None:
+    def __init__(self, downloader: YoutubeDownloader, media_sender: TelegramMediaSender, url: str, chat_id: str, content_type: ContentType, dl_format_name: "str | None") -> None:
         super().__init__()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.downloader = downloader
