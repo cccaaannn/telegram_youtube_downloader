@@ -103,7 +103,7 @@ class YoutubeDownloader:
             self.__logger.warn(str(de))
             self.__logger.info(f"Deleting folder {options['save_dir']}")
             shutil.rmtree(options["save_dir"], ignore_errors=True, onerror=None)
-            raise DownloadError("Download error (Site might be not supported)")
+            raise DownloadError("Download error (yt_dlp download error)")
         except DownloadError as de:
             self.__logger.warn(str(de))
             self.__logger.info(f"Deleting folder {options['save_dir']}")

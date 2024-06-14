@@ -14,12 +14,14 @@ from utils.logger_factory import LoggerFactory
 from statics.content_type import ContentType
 from errors.search_error import SearchError
 from utils.api_key_utils import ApiKeyUtils
+from utils.config_utils import ConfigUtils
 
 
 class TelegramBot:
     def __init__(self) -> None:
         self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
+        self.__base_url = ConfigUtils.read_cfg_file()["telegram_bot_options"]["base_url"]
 
         self.downloader = YoutubeDownloader()
         self.media_sender = TelegramMediaSender()
@@ -214,7 +216,10 @@ class TelegramBot:
 
 
         self.__logger.info("Starting...")
-        updater = Updater(self.__bot_key, use_context=True)
+        if(self.__base_url is not None):
+            self.__logger.info(f"Using custom api url ({self.__base_url})")
+
+        updater = Updater(self.__bot_key, use_context=True, base_url=self.__base_url)
         dp = updater.dispatcher
         self.__logger.info("Bot started, good downloading...")
 

@@ -9,6 +9,8 @@ telegram_bot_options:
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
 
+  base_url: null                                  # See docs/API_SERVER.md for more information (Ex: http://telegram-bot-api:8081/bot)
+
   authorization_options:
     mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
     users: []
@@ -38,6 +40,7 @@ youtube_downloader_options:
   allowed_url_patterns:                           # Array of url regex for allowed paths, names will be used on '/sites' command
     - name: All sites allowed
       pattern: "^https://.*$"
+
   formats:                                        # Download format options
     VIDEO:
       - name: best

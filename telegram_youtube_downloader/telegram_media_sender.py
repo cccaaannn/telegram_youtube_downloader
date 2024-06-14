@@ -12,10 +12,14 @@ from errors.send_error import SendError
 class TelegramMediaSender:
     """Custom media sender class for telegrams native api"""
 
+    __default_telegram_api_url = "https://api.telegram.org/bot"
+
     def __init__(self) -> None:
         self.__telegram_options = ConfigUtils.read_cfg_file()["telegram_bot_options"]
         self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
+        __base_url_config = ConfigUtils.read_cfg_file()["telegram_bot_options"]["base_url"]
+        self.__base_url = __base_url_config if __base_url_config is not None else self.__default_telegram_api_url
 
     def send_text(self, chat_id, text):
         try: 
@@ -25,7 +29,7 @@ class TelegramMediaSender:
                 'parse_mode': 'HTML'
             }
 
-            url = f"https://api.telegram.org/bot{self.__bot_key}/sendMessage"
+            url = f"{self.__base_url}{self.__bot_key}/sendMessage"
             timeout = self.__telegram_options["text_timeout_seconds"]
 
             resp = requests.post(url, data=payload, timeout=timeout).json()
@@ -53,7 +57,7 @@ class TelegramMediaSender:
                 files = {
                     'audio': audio.read(),
                 }
-                url = f"https://api.telegram.org/bot{self.__bot_key}/sendAudio"
+                url = f"{self.__base_url}{self.__bot_key}/sendAudio"
                 timeout = self.__telegram_options["audio_timeout_seconds"]
 
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
@@ -92,7 +96,7 @@ class TelegramMediaSender:
                 files = {
                     'video': video.read(),
                 }
-                url = f"https://api.telegram.org/bot{self.__bot_key}/sendVideo"
+                url = f"{self.__base_url}{self.__bot_key}/sendVideo"
                 timeout = self.__telegram_options["video_timeout_seconds"]
 
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
