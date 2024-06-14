@@ -59,6 +59,7 @@ cccaaannn/telegram_youtube_downloader:latest
 ---
 
 ## 2. Ubuntu
+- Tested with `Ubuntu 22` - `Python 10`
 1. Install ffmpeg
 ```shell
 sudo apt update
@@ -102,6 +103,7 @@ python telegram_youtube_downloader
 ---
 
 ## 3. Windows
+- Tested with `Windows 10` - `Python 10`
 1. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
     - Add `ffmpeg` to path, or add the binary path to `telegram_youtube_downloader\configs\config.yaml`. [See configurations](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md).
 2. Install latest python from [python.org](https://www.python.org/downloads/).
