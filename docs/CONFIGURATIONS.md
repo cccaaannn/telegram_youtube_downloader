@@ -5,6 +5,8 @@
 ## Table of contents
 - [logger_options](#logger_options)
 - [telegram_bot_options](#telegram_bot_options)
+    - [base_url](#base_url)
+    - [default_command](#default_command)
     - [authorization_options](#authorization_options)
 - [youtube_search_options](#youtube_search_options)
 - [youtube_downloader_options](#youtube_downloader_options)
@@ -39,9 +41,20 @@ telegram_bot_options:
 
 ### `base_url`
 ### Base url of the telegram api server, set this if you are using a custom api server. [See usage with api server](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/API_SERVER.md)
+  - Custom api server has advantages like uploading files up to 2000 MB 
 ```yaml
 telegram_bot_options:
   base_url: null
+```
+
+### `default_command`
+### Default command runs a specified command on text messages, you can directly send a url to execute a default command.
+  - audio: runs audio command on message.
+  - video: runs video command on message.
+  - null: disables feature.
+```yaml
+telegram_bot_options:
+  default_command: null    # audio,video,null
 ```
 
 ### `authorization_options`
@@ -89,7 +102,7 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200   # 20 min
   max_audio_duration_seconds: 3000   # 50 min
-  ffmpeg_location: null              # 'null' will try to get from env as ffmpeg
+  ffmpeg_location: null              # null will try to get from env as ffmpeg
 ```
 
 ### `audio_options` and `video_options`
@@ -177,6 +190,7 @@ telegram_bot_options:
   audio_timeout_seconds: 300                      # 5 min
 
   base_url: null                                  # See docs/CONFIGURATIONS.md for more information (Ex: http://telegram-bot-api:8081/bot)
+  default_command: null                           # audio,video,null docs/CONFIGURATIONS.md for more information
 
   authorization_options:
     mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
@@ -188,7 +202,7 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200                # 20 min
   max_audio_duration_seconds: 3000                # 50 min
-  ffmpeg_location: null                           # 'null' will try to get from env as ffmpeg
+  ffmpeg_location: null                           # null will try to get from env as ffmpeg
 
   audio_options:                                  # audio_options are directly passed to youtube_dl on audio downloads
     postprocessors: 
