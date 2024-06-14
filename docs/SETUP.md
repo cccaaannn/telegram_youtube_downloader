@@ -106,7 +106,7 @@ python telegram_youtube_downloader
 - Tested with `Windows 10` - `Python 10`
 1. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
     - Add `ffmpeg` to path, or add the binary path to `telegram_youtube_downloader\configs\config.yaml`. [See configurations](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md).
-2. Install latest python from [python.org](https://www.python.org/downloads/).
+2. Install python from [python.org](https://www.python.org/downloads/).
 3. Install requirements.
 ```shell
 pip install -r requirements.txt
