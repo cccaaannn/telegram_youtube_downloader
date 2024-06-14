@@ -1,6 +1,6 @@
 import textwrap
 
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 from telegram_media_sender import TelegramMediaSender
@@ -10,6 +10,7 @@ from download_thread import DownloadThread
 
 from decorators.telegram_bot_command_interceptor import TelegramBotCommandInterceptor
 from decorators.telegram_bot_error_handler import TelegramBotErrorHandler
+from statics.default_command_type import DefaultCommandType
 from utils.logger_factory import LoggerFactory
 from statics.content_type import ContentType
 from errors.search_error import SearchError
@@ -22,6 +23,7 @@ class TelegramBot:
         self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.__base_url = ConfigUtils.read_cfg_file()["telegram_bot_options"]["base_url"]
+        self.__default_command = ConfigUtils.read_cfg_file()["telegram_bot_options"]["default_command"]
 
         self.downloader = YoutubeDownloader()
         self.media_sender = TelegramMediaSender()
@@ -214,6 +216,14 @@ class TelegramBot:
                 dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=None)
                 dt.start()
 
+        def message_handler(update, context):
+            context.args = [update.message.text]
+            if(self.__default_command == DefaultCommandType.AUDIO.value):
+                audio(update, context)
+            elif(self.__default_command == DefaultCommandType.VIDEO.value):
+                video(update, context)
+            else:
+                update.message.reply_text(f"Invalid default command type set ({self.__default_command}), available types are {[enm.value for enm in DefaultCommandType]}")
 
         self.__logger.info("Starting...")
         if(self.__base_url is not None):
@@ -239,6 +249,10 @@ class TelegramBot:
         dp.add_handler(CommandHandler("s", search))
         dp.add_handler(CallbackQueryHandler(search_video_selection_menu_handler, pattern=r"^(?!{{video}}$|{{audio}}$).*"))  # Everything except {{video}} or {{audio}}
         dp.add_handler(CallbackQueryHandler(search_download_type_menu_handler, pattern=r"^{{video}}$|^{{audio}}$"))         # Only {{video}} or {{audio}}
+
+        if self.__default_command is not None:
+            self.__logger.info(f"Default command is set to {self.__default_command}")
+            dp.add_handler(MessageHandler(Filters.text & ~Filters.command, message_handler))
 
         # error handler
         dp.add_error_handler(error)

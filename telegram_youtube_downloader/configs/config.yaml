@@ -10,6 +10,7 @@ telegram_bot_options:
   audio_timeout_seconds: 300                      # 5 min
 
   base_url: null                                  # See docs/API_SERVER.md for more information (Ex: http://telegram-bot-api:8081/bot)
+  default_command: null                           # audio,video,null docs/CONFIGURATIONS.md for more information
 
   authorization_options:
     mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
@@ -21,7 +22,7 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200                # 20 min
   max_audio_duration_seconds: 3000                # 50 min
-  ffmpeg_location: null                           # 'null' will try to get from env as ffmpeg
+  ffmpeg_location: null                           # null will try to get from env as ffmpeg
 
   audio_options:                                  # audio_options are directly passed to youtube_dl on audio downloads
     postprocessors: 
