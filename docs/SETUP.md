@@ -3,13 +3,13 @@
 --- 
 
 ## Table of contents
-- [Preliminary steps](#Preliminary-steps)
-- [Running](#Running)
-    1. [Docker](#Docker)
-    2. [Ubuntu](#Ubuntu)
-    3. [Windows](#Windows)
-- [Search command](#Search-command)
-- [Alternative ways to pass keys](#Alternative-ways-to-pass-keys)
+- [Preliminary steps](#preliminary-steps)
+- [Running](#running)
+    1. [Docker](#1-docker)
+    2. [Ubuntu](#2-ubuntu)
+    3. [Windows](#3-windows)
+- [Search command](#search-command)
+- [Alternative ways to pass keys](#alternative-ways-to-pass-keys)
 
 <br>
 

@@ -11,7 +11,7 @@
     - [audio_options and video_options](#audio_options-and-video_options)
     - [allowed_url_patterns](#allowed_url_patterns)
     - [formats](#formats)
-- [Full config example](#Full-config-example)
+- [Full config example](#full-config-example)
 
 <br>
 
@@ -35,6 +35,13 @@ telegram_bot_options:
   text_timeout_seconds: 30
   video_timeout_seconds: 300 
   audio_timeout_seconds: 300
+```
+
+### `base_url`
+### Base url of the telegram api server, set this if you are using a custom api server. [See usage with api server](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/API_SERVER.md)
+```yaml
+telegram_bot_options:
+  base_url: null
 ```
 
 ### `authorization_options`
@@ -168,6 +175,8 @@ telegram_bot_options:
   text_timeout_seconds: 30
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
+
+  base_url: null                                  # See docs/CONFIGURATIONS.md for more information (Ex: http://telegram-bot-api:8081/bot)
 
   authorization_options:
     mode: "DISABLED"                              # See docs/CONFIGURATIONS.md for more information about authorization
