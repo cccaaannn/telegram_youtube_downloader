@@ -48,7 +48,7 @@ telegram_bot_options:
 ```
 
 ### `default_command`
-### Default command runs a specified command on text messages, you can directly send a url to execute a default command.
+### Default command runs a specified command on text messages, you can directly send a url to execute the default command.
   - audio: runs audio command on message.
   - video: runs video command on message.
   - null: disables feature.
