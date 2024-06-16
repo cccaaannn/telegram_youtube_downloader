@@ -159,5 +159,8 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-#vscode
+# vscode
 .vscode
+
+# GitHub
+.github/
