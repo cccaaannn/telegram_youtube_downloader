@@ -1,6 +1,6 @@
 import textwrap
 
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 from telegram_media_sender import TelegramMediaSender
@@ -41,12 +41,12 @@ class TelegramBot:
     def start(self):
         """Starts pooling (blocking)"""
 
-        def error(update, context):
-            self.__logger.error(f"Update {update} caused error {context.error}")
+        async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            self.__logger.error(f"Exception while handling an update {update}", exc_info=context.error)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="about", function_usage="/about")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/about")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "about"})
-        def about(update, context):
+        async def about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ans = textwrap.dedent("""\
                 [About]
 
@@ -54,11 +54,11 @@ class TelegramBot:
                 https://github.com/cccaaannn/telegram_youtube_downloader
 
                 Author Can Kurt""")
-            update.message.reply_text(ans)
+            await update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="help", function_usage="/help")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/help")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "help"})
-        def help(update: Update, context: CallbackContext):
+        async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ans = textwrap.dedent(f"""\
                 [Commands]
 
@@ -83,23 +83,23 @@ class TelegramBot:
                 /sites
 
                 Maximum durations are set by the operator of the bot.""")
-            update.message.reply_text(ans)
+            await update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="formats", function_usage="/formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/formats")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "formats"})
-        def formats(update, context):
+        async def formats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ans = f"[Available formats]\n\n[audio]\n{self.downloader.get_download_formats(ContentType.AUDIO)}\n[video]\n{self.downloader.get_download_formats(ContentType.VIDEO)}\nThese are only preferred formats and may not be available for the video."
-            update.message.reply_text(ans)
+            await update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="sites", function_usage="/sites")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/sites")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "sites"})
-        def sites(update, context):
+        async def sites(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ans = f"[Supported sites]\n\n{self.downloader.get_allowed_url_names()}"
-            update.message.reply_text(ans)
+            await update.message.reply_text(ans)
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="audio", function_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "audio"})
-        def audio(update, context):
+        async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if(len(context.args) > 2 or len(context.args) < 1):
                 raise ValueError()
 
@@ -113,14 +113,14 @@ class TelegramBot:
                 url = context.args[0]
                 dl_format_name = None
 
-            update.message.reply_text("⬇️🎧 Download Starting...")
+            await update.message.reply_text("⬇️🎧 Download Starting...")
 
             dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.AUDIO, dl_format_name=dl_format_name)
             dt.start()
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="video", function_usage="/video <download url> or /video <format> <download url>\n/formats for available formats")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/video <download url> or /video <format> <download url>\n/formats for available formats")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "video"})
-        def video(update, context):
+        async def video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if(len(context.args) > 2 or len(context.args) < 1):
                 raise ValueError()
 
@@ -134,24 +134,24 @@ class TelegramBot:
                 url = context.args[0]
                 dl_format_name = None
 
-            update.message.reply_text("⬇️📽️ Download Starting...")
+            await update.message.reply_text("⬇️📽️ Download Starting...")
 
             dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=dl_format_name)
             dt.start()
 
-        @TelegramBotErrorHandler.command_handler(self.__logger, function_name="search", function_usage="/search <query>")
+        @TelegramBotErrorHandler.command_handler(self.__logger, command_usage="/search <query>")
         @TelegramBotCommandInterceptor.secured_command(function_claims={"all", "search"})
-        def search(update, context):
+        async def search(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             # Bot can be started without youtube api key
             if(not self.youtube_searcher.is_initialized()):
-                update.message.reply_text("Search is not activated by the operator of this bot")
+                await update.message.reply_text("Search is not activated by the operator of this bot")
                 return
 
             # Get and validate query from params
             # Ex: /search sample youtube video  ->  args[0]=sample ...
             query = ' '.join(context.args).strip()
             if(not query or query.isspace()):
-                update.message.reply_text("Invalid search query")
+                await update.message.reply_text("Invalid search query")
                 return
 
             # Run search
@@ -159,7 +159,7 @@ class TelegramBot:
                 search_result = self.youtube_searcher.search(query=query)
             except SearchError as se:
                 self.__logger.warn(str(se))
-                update.message.reply_text(str(se))
+                await update.message.reply_text(str(se))
                 return
 
             # Fill keyboard and user_data[urls], keyboard's callback_data can not hold url info since it is too large so it is stored in user_data provided by telegram bot library
@@ -170,10 +170,10 @@ class TelegramBot:
                 context.user_data["urls"].append(result["url"])
                 keyboard.append([InlineKeyboardButton(TelegramBot.__video_title_formatter(result["title"], result["duration"]), callback_data=index)]) # limit title size with 50 characters
 
-            update.message.reply_text("Choose a video", reply_markup=InlineKeyboardMarkup(keyboard))
+            await update.message.reply_text("Choose a video", reply_markup=InlineKeyboardMarkup(keyboard))
 
         @TelegramBotErrorHandler.menu_handler(self.__logger)
-        def search_video_selection_menu_handler(update, context):
+        async def search_video_selection_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             """
             Handles every menu callback except {{video}} or {{audio}}
             When user makes a selection it is saved to user_data["selected_url"] and second menus keyboard is sent.
@@ -185,10 +185,10 @@ class TelegramBot:
             # Since first menu is always called by /search command user_data["urls"] will be full
             context.user_data["selected_url"] = context.user_data["urls"][int(data)]
             keyboard = [[InlineKeyboardButton(f'audio - Max ({self.downloader.get_max_audio_duration()})', callback_data='{{audio}}'), InlineKeyboardButton(f'video - Max ({self.downloader.get_max_video_duration()})', callback_data='{{video}}')]]
-            query.edit_message_text(text="Download this video as", reply_markup=InlineKeyboardMarkup(keyboard, one_time_keyboard=True))
+            await query.edit_message_text(text="Download this video as", reply_markup=InlineKeyboardMarkup(keyboard))
 
         @TelegramBotErrorHandler.menu_handler(self.__logger)
-        def search_download_type_menu_handler(update, context):
+        async def search_download_type_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             """
             Handles only {{video}} and {{audio}} menu callbacks
             When user makes a selection, using it and user_data["selected_url"] starts download process
@@ -205,58 +205,63 @@ class TelegramBot:
             del context.user_data["urls"]
 
             if(data == "{{audio}}"):
-                query.edit_message_text(text=f"⬇️🎧 Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
- 
+                await query.edit_message_text(text=f"⬇️🎧 Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
+
                 dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.AUDIO, dl_format_name=None)
                 dt.start()
 
             if(data == "{{video}}"):
-                query.edit_message_text(text=f"⬇️📽️ Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
+                await query.edit_message_text(text=f"⬇️📽️ Download Starting...\n\nDownloading from\n{url}", reply_markup=None)
 
                 dt = DownloadThread(downloader=self.downloader, media_sender=self.media_sender, url=url, chat_id=chat_id, content_type=ContentType.VIDEO, dl_format_name=None)
                 dt.start()
 
-        def message_handler(update, context):
+        async def default_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             context.args = [update.message.text]
             if(self.__default_command == DefaultCommandType.AUDIO.value):
-                audio(update, context)
+                await audio(update, context)
             elif(self.__default_command == DefaultCommandType.VIDEO.value):
-                video(update, context)
+                await video(update, context)
             else:
-                update.message.reply_text(f"Invalid default command type set ({self.__default_command}), available types are {[enm.value for enm in DefaultCommandType]}")
+                await update.message.reply_text(f"Invalid default command type set ({self.__default_command}), available types are {[enm.value for enm in DefaultCommandType]}")
+
 
         self.__logger.info("Starting...")
+        application_builder = Application.builder().token(self.__bot_key)
+
         if(self.__base_url is not None):
             self.__logger.info(f"Using custom api url ({self.__base_url})")
+            application_builder.base_url(self.__base_url)
 
-        updater = Updater(self.__bot_key, use_context=True, base_url=self.__base_url)
-        dp = updater.dispatcher
-        self.__logger.info("Bot started, good downloading...")
+        application = application_builder.build()
 
-        # command handler
-        dp.add_handler(CommandHandler("about", about))
-        dp.add_handler(CommandHandler("help", help))
-        dp.add_handler(CommandHandler("formats", formats))
-        dp.add_handler(CommandHandler("sites", sites))
+        self.__logger.info("Bot created, starting pooling")
 
-        dp.add_handler(CommandHandler("audio", audio, pass_args=True))
-        dp.add_handler(CommandHandler("a", audio, pass_args=True))
+        # Command handler
+        application.add_handler(CommandHandler("about", about))
+        application.add_handler(CommandHandler("help", help))
+        application.add_handler(CommandHandler("formats", formats))
+        application.add_handler(CommandHandler("sites", sites))
 
-        dp.add_handler(CommandHandler("video", video, pass_args=True))
-        dp.add_handler(CommandHandler("v", video, pass_args=True))
+        application.add_handler(CommandHandler("audio", audio))
+        application.add_handler(CommandHandler("a", audio))
 
-        dp.add_handler(CommandHandler("search", search))
-        dp.add_handler(CommandHandler("s", search))
-        dp.add_handler(CallbackQueryHandler(search_video_selection_menu_handler, pattern=r"^(?!{{video}}$|{{audio}}$).*"))  # Everything except {{video}} or {{audio}}
-        dp.add_handler(CallbackQueryHandler(search_download_type_menu_handler, pattern=r"^{{video}}$|^{{audio}}$"))         # Only {{video}} or {{audio}}
+        application.add_handler(CommandHandler("video", video))
+        application.add_handler(CommandHandler("v", video))
 
+        # Search menu handler
+        application.add_handler(CommandHandler("search", search))
+        application.add_handler(CommandHandler("s", search))
+        application.add_handler(CallbackQueryHandler(search_video_selection_menu_handler, pattern=r"^(?!{{video}}$|{{audio}}$).*"))  # Everything except {{video}} or {{audio}}
+        application.add_handler(CallbackQueryHandler(search_download_type_menu_handler, pattern=r"^{{video}}$|^{{audio}}$"))         # Only {{video}} or {{audio}}
+
+        # Default message handler
         if self.__default_command is not None:
             self.__logger.info(f"Default command is set to {self.__default_command}")
-            dp.add_handler(MessageHandler(Filters.text & ~Filters.command, message_handler))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, default_message_handler))
 
-        # error handler
-        dp.add_error_handler(error)
+        # Error handler
+        application.add_error_handler(error)
 
-        # start bot
-        updater.start_polling()
-        updater.idle()
+        # Start pooling
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
