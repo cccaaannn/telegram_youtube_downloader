@@ -59,7 +59,13 @@ class YoutubeDownloader:
             # Rename
             _, file_extension = os.path.splitext(downloaded_file)
             new_file_path = os.path.join(folder_path, video_title + file_extension)
-            os.rename(downloaded_file, new_file_path)
+            try:
+                os.rename(downloaded_file, new_file_path)
+            except OSError as e:
+                if e.errno != 36:
+                    raise e
+                else:
+                    return downloaded_file
 
             return new_file_path
         except:
