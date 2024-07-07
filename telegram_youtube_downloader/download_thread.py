@@ -11,7 +11,7 @@ from errors.send_error import SendError
 
 
 class DownloadThread(threading.Thread):
-    def __init__(self, downloader: YoutubeDownloader, media_sender: TelegramMediaSender, url: str, chat_id: str, content_type: ContentType, dl_format_name: "str | None") -> None:
+    def __init__(self, downloader: YoutubeDownloader, media_sender: TelegramMediaSender, url: str, chat_id: int, content_type: ContentType, dl_format_name: "str | None") -> None:
         super().__init__()
         self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.downloader = downloader
@@ -22,36 +22,46 @@ class DownloadThread(threading.Thread):
         self.dl_format_name = dl_format_name
 
 
-    def __run_for_audio(self):
+    def __run_for_audio(self) -> None:
         download_start = time.time()
-        path = self.downloader.download(self.url, ContentType.AUDIO, self.dl_format_name)
-        self.__logger.info(f"Download completed with path {path}, took {float(time.time() - download_start):.3f} seconds")
+        result = self.downloader.download(self.url, ContentType.AUDIO, self.dl_format_name)
+        self.__logger.info(f"Download completed {result}, took {float(time.time() - download_start):.3f} seconds")
 
         self.media_sender.send_text(self.chat_id, "⬆️🎧 Download finished, sending...")
 
         upload_start = time.time()
-        self.media_sender.send_audio(chat_id=self.chat_id, file_path=path, remove=True)
+        self.media_sender.send_audio(
+            chat_id=self.chat_id,
+            file_path=result.file_path,
+            title=result.video_title,
+            remove=True
+        )
         self.media_sender.send_text(self.chat_id, "🥳")
         self.__logger.info(f"Upload completed, took {float(time.time() - upload_start):.3f} seconds")
         
         self.__logger.info(f"Total operation took {float(time.time() - download_start):.3f} seconds")
 
-    def __run_for_video(self):
+    def __run_for_video(self) -> None:
         download_start = time.time()
-        path = self.downloader.download(self.url, ContentType.VIDEO, self.dl_format_name)
-        self.__logger.info(f"Download completed with path {path}, took {float(time.time() - download_start):.3f} seconds")
+        result = self.downloader.download(self.url, ContentType.VIDEO, self.dl_format_name)
+        self.__logger.info(f"Download completed {result}, took {float(time.time() - download_start):.3f} seconds")
 
         self.media_sender.send_text(self.chat_id, "⬆️📽️ Download finished, sending...")
 
         upload_start = time.time()
-        self.media_sender.send_video(chat_id=self.chat_id, file_path=path, remove=True)
+        self.media_sender.send_video(
+            chat_id=self.chat_id,
+            file_path=result.file_path,
+            title=result.video_title,
+            remove=True
+        )
         self.media_sender.send_text(self.chat_id, "🥳")
         self.__logger.info(f"Upload completed, took {float(time.time() - upload_start):.3f} seconds")
 
         self.__logger.info(f"Total operation took {float(time.time() - download_start):.3f} seconds")
 
 
-    def run(self):
+    def run(self) -> None:
         self.__logger.info(f"Download started for url {self.url}")
 
         try:

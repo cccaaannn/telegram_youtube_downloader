@@ -21,7 +21,7 @@ class TelegramMediaSender:
         __base_url_config = ConfigUtils.read_cfg_file()["telegram_bot_options"]["base_url"]
         self.__base_url = __base_url_config if __base_url_config is not None else self.__default_telegram_api_url
 
-    def send_text(self, chat_id, text):
+    def send_text(self, chat_id: int, text: str) -> None:
         try: 
             payload = {
                 'chat_id': chat_id,
@@ -44,14 +44,12 @@ class TelegramMediaSender:
             raise SendError()
 
 
-    def send_audio(self, chat_id, file_path, remove=False):
+    def send_audio(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
         try:
-            _, file_name = os.path.split(file_path)
-
             with open(file_path, 'rb') as audio:
                 payload = {
                     'chat_id': chat_id,
-                    'title': file_name,
+                    'title': title,
                     'parse_mode': 'HTML'
                 }
                 files = {
@@ -83,14 +81,12 @@ class TelegramMediaSender:
                 folder_name, _ = os.path.split(file_path)
                 shutil.rmtree(folder_name, ignore_errors=True, onerror=None)
 
-    def send_video(self, chat_id, file_path, remove=False):
+    def send_video(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
         try:
-            _, file_name = os.path.split(file_path)
-
             with open(file_path, 'rb') as video:
                 payload = {
                     'chat_id': chat_id,
-                    'title': file_name,
+                    'title': title,
                     'parse_mode': 'HTML'
                 }
                 files = {
