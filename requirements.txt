@@ -1,7 +1,8 @@
 python-telegram-bot==21.3
-yt-dlp>=2024.5.27
+yt-dlp>=2025.02.19
 requests
 PyYAML
+dacite
 
 # Optional (for search functionality)
 google-api-python-client
