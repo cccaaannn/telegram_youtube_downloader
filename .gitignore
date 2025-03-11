@@ -139,3 +139,6 @@ dmypy.json
 
 # Temp (downloaded files)
 temp/
+
+# Rolling logs
+*.log.*
