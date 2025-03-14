@@ -2,10 +2,13 @@
 
 logger_options:
   log_path: logs                                  # Can be abs path
-  log_level: 20                                   # info
+  root_log_level: 30                              # Warning
+  app_log_level: 20                               # Info
+  backup_count: 10                                # Number of log files to keep
+  max_bytes: 10485760                             # Max log file size (10MB)
 
 telegram_bot_options:
-  text_timeout_seconds: 30
+  text_timeout_seconds: 30                        # 30 sec
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
 
@@ -22,7 +25,6 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200                # 20 min
   max_audio_duration_seconds: 3000                # 50 min
-  ffmpeg_location: null                           # null will try to get from env as ffmpeg
 
   audio_options:                                  # audio_options are directly passed to youtube_dl on audio downloads
     postprocessors: 
