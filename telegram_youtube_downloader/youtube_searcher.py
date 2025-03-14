@@ -1,7 +1,8 @@
-from apiclient.discovery import build
+import logging
+
+from apiclient.discovery import build # type: ignore
 import isodate
 
-from utils.logger_factory import LoggerFactory
 from errors.search_error import SearchError
 from utils.api_key_utils import ApiKeyUtils
 from utils.config_utils import ConfigUtils
@@ -10,8 +11,8 @@ from utils.config_utils import ConfigUtils
 class YoutubeSearcher:
     def __init__(self) -> None:
         self.__api_key = ApiKeyUtils.get_youtube_api_key()
-        self.__search_options = ConfigUtils.read_cfg_file()["youtube_search_options"]
-        self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
+        self.__search_options = ConfigUtils.get_app_config().youtube_search_options
+        self.__logger = logging.getLogger(f"tyd.{self.__class__.__name__}")
         self.__youtube_url_base = "https://www.youtube.com/watch?v="
         self.__is_initialized = False
         if(self.__api_key):
@@ -25,7 +26,7 @@ class YoutubeSearcher:
             video_detail = self.__youtube.videos().list(id=videoId, part='contentDetails', maxResults=1).execute()
             return str(isodate.parse_duration(video_detail['items'][0]["contentDetails"]["duration"]))
         except Exception as e:
-            self.__logger.warn("Unknown error", exc_info=True)
+            self.__logger.warning("Unknown error", exc_info=True)
             return "??:??"
 
 
@@ -39,7 +40,7 @@ class YoutubeSearcher:
         try:
             self.__logger.info(f"Search ran with query '{query}'")
 
-            search_results = self.__youtube.search().list(q=query, part='snippet', type='video', maxResults=self.__search_options["max_results"]).execute()
+            search_results = self.__youtube.search().list(q=query, part='snippet', type='video', maxResults=self.__search_options.max_results).execute()
 
             result = []
             for item in search_results['items']:
@@ -56,7 +57,7 @@ class YoutubeSearcher:
             return result
 
         except SearchError as se:
-            self.__logger.warn(str(se))
+            self.__logger.warning(str(se))
             raise se
         except:
             self.__logger.error("Unknown error", exc_info=True)

@@ -1,11 +1,11 @@
 import threading
+import logging
 import time
 
 from telegram_media_sender import TelegramMediaSender
 from youtube_downloader import YoutubeDownloader
 
 from errors.download_error import DownloadError
-from utils.logger_factory import LoggerFactory
 from statics.content_type import ContentType
 from errors.send_error import SendError
 
@@ -13,7 +13,7 @@ from errors.send_error import SendError
 class DownloadThread(threading.Thread):
     def __init__(self, downloader: YoutubeDownloader, media_sender: TelegramMediaSender, url: str, chat_id: int, content_type: ContentType, dl_format_name: "str | None") -> None:
         super().__init__()
-        self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
+        self.__logger = logging.getLogger(f"tyd.{self.__class__.__name__}")
         self.downloader = downloader
         self.media_sender = media_sender
         self.url = url
@@ -74,7 +74,7 @@ class DownloadThread(threading.Thread):
                 pass
 
         except (DownloadError, SendError) as e:
-            self.__logger.warn(str(e))
+            self.__logger.warning(str(e))
             # Try to answer on error
             try:
                 self.media_sender.send_text(chat_id=self.chat_id, text=f"💩 {str(e)}")

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import shutil
 import re
 import os
@@ -8,7 +9,6 @@ import yt_dlp as yt
 from data.downloader_result import DownloaderResult
 from youtube_dl_options import YoutubeDlOptions
 from errors.download_error import DownloadError
-from utils.logger_factory import LoggerFactory
 from statics.content_type import ContentType
 from utils.config_utils import ConfigUtils
 from data.dl_format import DlFormat
@@ -16,15 +16,15 @@ from data.dl_format import DlFormat
 
 class YoutubeDownloader:
     def __init__(self) -> None:
-        self.__download_options = ConfigUtils.read_cfg_file()["youtube_downloader_options"]
-        self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
+        self.__download_options = ConfigUtils.get_app_config().youtube_downloader_options
+        self.__logger = logging.getLogger(f"tyd.{self.__class__.__name__}")
 
     def __is_allowed_url(self, url: str) -> bool:
         """Checks if provided url is on the allowed url list"""
-        allowed_patterns = self.__download_options["allowed_url_patterns"]
+        allowed_patterns = self.__download_options.allowed_url_patterns
         matches = []
         for allowed_pattern in allowed_patterns:
-            compiled_pattern = re.compile(allowed_pattern["pattern"])
+            compiled_pattern = re.compile(allowed_pattern.pattern)
             matches.append(compiled_pattern.match(url))
         return any(matches)
 
@@ -93,71 +93,69 @@ class YoutubeDownloader:
                 # Build response
                 result = DownloaderResult(
                     file_path=downloaded_file_path,
-                    video_title=meta.get("title", "Unknown"),
+                    video_title=str(meta.get("title", "Unknown")),
                 )
 
                 return result
 
         # Delete folder on exception
         except yt.utils.DownloadError as de:
-            self.__logger.warn(str(de))
+            self.__logger.warning(str(de))
             self.__logger.info(f"Deleting folder {options['save_dir']}")
-            shutil.rmtree(options["save_dir"], ignore_errors=True, onerror=None)
+            shutil.rmtree(options["save_dir"], ignore_errors=True)
             raise DownloadError("Download error (yt_dlp download error)")
         except DownloadError as de:
-            self.__logger.warn(str(de))
+            self.__logger.warning(str(de))
             self.__logger.info(f"Deleting folder {options['save_dir']}")
-            shutil.rmtree(options["save_dir"], ignore_errors=True, onerror=None)
+            shutil.rmtree(options["save_dir"], ignore_errors=True)
             raise de
         except Exception:
             self.__logger.error("Unknown error", exc_info=True)
             self.__logger.info(f"Deleting folder {options['save_dir']}")
-            shutil.rmtree(options["save_dir"], ignore_errors=True, onerror=None)
+            shutil.rmtree(options["save_dir"], ignore_errors=True)
             raise DownloadError()
 
 
 
     def __get_download_format_from_name(self, content_type: ContentType, format_name: str) -> DlFormat:
         """Returns full format dict for a format name, raises DownloadError if format is not supported. Ex: ({name: test, value: 'best/best', is_default: false})"""
-        dl_formats = self.__download_options["formats"][content_type.value]
+        dl_formats = self.__download_options.formats.from_string(content_type.value)
         for dl_format in dl_formats:
-            dl_fmt = DlFormat.from_dict(dl_format)
-            if(dl_fmt.name == format_name):
-                return dl_fmt
+            if(dl_format.name == format_name):
+                return dl_format
         self.__logger.warning(f"{content_type.value} format '{format_name}' is not supported")
         raise DownloadError(f"{content_type.value} format '{format_name}' is not supported")
 
     def __get_default_download_format(self, content_type: ContentType) -> DlFormat:
         """Returns the default format for a content type, raises DownloadError if no default is set"""
-        dl_formats = self.__download_options["formats"][content_type.value]
+        dl_formats = self.__download_options.formats.from_string(content_type.value)
         for dl_format in dl_formats:
-            dl_fmt = DlFormat.from_dict(dl_format)
-            if(dl_fmt.is_default):
-                return dl_fmt
+            if(dl_format.is_default):
+                return dl_format
         self.__logger.error(f"No default format configured for {content_type.value}")
         raise DownloadError(f"No default format configured for {content_type.value}")
 
     def get_max_video_duration(self) -> str:
-        return str(datetime.timedelta(seconds=self.__download_options["max_video_duration_seconds"]))
+        return str(datetime.timedelta(seconds=self.__download_options.max_video_duration_seconds))
 
     def get_max_audio_duration(self) -> str:
-        return str(datetime.timedelta(seconds=self.__download_options["max_audio_duration_seconds"]))
+        return str(datetime.timedelta(seconds=self.__download_options.max_audio_duration_seconds))
 
     def get_allowed_url_names(self) -> str:
         """Returns allowed site names in readable way"""
-        allowed_patterns = self.__download_options["allowed_url_patterns"]
+        allowed_patterns = self.__download_options.allowed_url_patterns
         url_names = ""
         for allowed_pattern in allowed_patterns:
-            url_names += f"{allowed_pattern['name']}\n"
+            url_names += f"{allowed_pattern.name}\n"
         return url_names
 
     def get_download_formats(self, content_type: ContentType) -> str:
         """Returns download formats in readable way"""
-        video_formats = self.__download_options["formats"][content_type.value]
+        video_formats = self.__download_options.formats.from_string(content_type.value)
         format_names = ""
         for video_format in video_formats:
-            is_default = ' (Default)' if video_format.get('is_default', False) else ''
-            format_names += f"{video_format['name']}{is_default}\n"
+            is_default = ' (Default)' if video_format.is_default else ''
+            format_names += f"{video_format.name}{is_default}\n"
         return format_names
 
     def download(self, url: str, content_type: ContentType, download_format_name: "str | None") -> DownloaderResult:

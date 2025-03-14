@@ -1,9 +1,9 @@
+import logging
 import shutil
 import os
 
 import requests
 
-from utils.logger_factory import LoggerFactory
 from utils.api_key_utils import ApiKeyUtils
 from utils.config_utils import ConfigUtils
 from errors.send_error import SendError
@@ -15,10 +15,10 @@ class TelegramMediaSender:
     __default_telegram_api_url = "https://api.telegram.org/bot"
 
     def __init__(self) -> None:
-        self.__telegram_options = ConfigUtils.read_cfg_file()["telegram_bot_options"]
+        self.__telegram_options = ConfigUtils.get_app_config().telegram_bot_options
         self.__bot_key = ApiKeyUtils.get_telegram_bot_key()
-        self.__logger = LoggerFactory.get_logger(self.__class__.__name__)
-        __base_url_config = ConfigUtils.read_cfg_file()["telegram_bot_options"]["base_url"]
+        self.__logger = logging.getLogger(f"tyd.{self.__class__.__name__}")
+        __base_url_config = ConfigUtils.get_app_config().telegram_bot_options.base_url
         self.__base_url = __base_url_config if __base_url_config is not None else self.__default_telegram_api_url
 
     def send_text(self, chat_id: int, text: str) -> None:
@@ -30,13 +30,13 @@ class TelegramMediaSender:
             }
 
             url = f"{self.__base_url}{self.__bot_key}/sendMessage"
-            timeout = self.__telegram_options["text_timeout_seconds"]
+            timeout = self.__telegram_options.text_timeout_seconds
 
             resp = requests.post(url, data=payload, timeout=timeout).json()
             self.__logger.info(resp)
 
             if(not resp['ok']):
-                self.__logger.warn(resp)
+                self.__logger.warning(resp)
                 raise SendError(f"Could not send message, Telegram: {resp['description']}")
 
         except Exception:
@@ -56,17 +56,17 @@ class TelegramMediaSender:
                     'audio': audio.read(),
                 }
                 url = f"{self.__base_url}{self.__bot_key}/sendAudio"
-                timeout = self.__telegram_options["audio_timeout_seconds"]
+                timeout = self.__telegram_options.audio_timeout_seconds
 
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
                 self.__logger.info(resp)
 
                 if(not resp['ok']):
-                    self.__logger.warn(resp)
+                    self.__logger.warning(resp)
                     raise SendError(f"Could not send audio, Telegram: {resp['description']}")
 
         except (requests.Timeout, requests.ConnectionError):
-            self.__logger.warn("Could not send audio, timeout")
+            self.__logger.warning("Could not send audio, timeout")
             raise SendError("Could not send audio, timeout")
 
         except Exception:
@@ -79,7 +79,7 @@ class TelegramMediaSender:
                 
                 # Try to delete folder
                 folder_name, _ = os.path.split(file_path)
-                shutil.rmtree(folder_name, ignore_errors=True, onerror=None)
+                shutil.rmtree(folder_name, ignore_errors=True)
 
     def send_video(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
         try:
@@ -93,17 +93,17 @@ class TelegramMediaSender:
                     'video': video.read(),
                 }
                 url = f"{self.__base_url}{self.__bot_key}/sendVideo"
-                timeout = self.__telegram_options["video_timeout_seconds"]
+                timeout = self.__telegram_options.video_timeout_seconds
 
                 resp = requests.post(url, data=payload, files=files, timeout=timeout).json()
                 self.__logger.info(resp)
 
                 if(not resp['ok']):
-                    self.__logger.warn(resp)
+                    self.__logger.warning(resp)
                     raise SendError(f"Could not send video, Telegram: {resp['description']}")
 
         except (requests.Timeout, requests.ConnectionError):
-            self.__logger.warn("Could not send video, timeout")
+            self.__logger.warning("Could not send video, timeout")
             raise SendError("Could not send video, timeout")
 
         except Exception:
@@ -116,4 +116,4 @@ class TelegramMediaSender:
 
                 # Try to delete folder
                 folder_name, _ = os.path.split(file_path)
-                shutil.rmtree(folder_name, ignore_errors=True, onerror=None)
+                shutil.rmtree(folder_name, ignore_errors=True)

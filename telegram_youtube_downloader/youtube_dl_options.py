@@ -8,37 +8,32 @@ from utils.config_utils import ConfigUtils
 
 class YoutubeDlOptions:
     def __init__(self):
-        self.__youtube_dl_options = ConfigUtils.read_cfg_file()["youtube_downloader_options"]
+        self.__youtube_dl_options = ConfigUtils.get_app_config().youtube_downloader_options
 
         save_dir = self.__get_random_dir_path()
         self.__audio_options = {
             # Spread values from config file
-            **self.__youtube_dl_options["audio_options"],
+            **self.__youtube_dl_options.audio_options,
 
             "outtmpl": os.path.join(save_dir, "TEMP" + ".%(ext)s"),
 
             # For custom downloader class 
             "content_type": ContentType.AUDIO,
             "save_dir": save_dir,
-            "max_duration_seconds": self.__youtube_dl_options["max_audio_duration_seconds"]
+            "max_duration_seconds": self.__youtube_dl_options.max_audio_duration_seconds
         }
 
         self.__video_options = {
             # Spread values from config file
-            **self.__youtube_dl_options["video_options"],
+            **self.__youtube_dl_options.video_options,
 
             "outtmpl": os.path.join(save_dir, "TEMP" + ".%(ext)s"),
 
             # For custom downloader class 
             "content_type": ContentType.VIDEO,
             "save_dir": save_dir,
-            "max_duration_seconds": self.__youtube_dl_options["max_video_duration_seconds"]
+            "max_duration_seconds": self.__youtube_dl_options.max_video_duration_seconds
         }
-
-        # Add ffmpeg_location if exists
-        if(self.__youtube_dl_options["ffmpeg_location"]):
-            self.__audio_options["ffmpeg_location"] = self.__youtube_dl_options["ffmpeg_location"]
-            self.__video_options["ffmpeg_location"] = self.__youtube_dl_options["ffmpeg_location"]
 
     def __get_random_dir_path(self):
         path = os.path.join("temp", str(uuid.uuid4()))

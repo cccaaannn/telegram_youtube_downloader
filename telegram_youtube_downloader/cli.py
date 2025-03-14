@@ -1,10 +1,10 @@
 import argparse
+import logging
 import sys
 import os
 
 from telegram_bot import TelegramBot
 
-from utils.logger_factory import LoggerFactory
 from utils.api_key_utils import ApiKeyUtils
 
 
@@ -12,7 +12,7 @@ class Cli:
     def __init__(self) -> None:
         self.bot_key_env_name = ApiKeyUtils.TELEGRAM_BOT_ENVIRONMENT_NAME
         self.youtube_api_key_env_name = ApiKeyUtils.YOUTUBE_API_ENVIRONMENT_NAME
-        self.__logger = LoggerFactory.get_logger(self.__class__.__name__, file_handler=False)
+        self.__logger = logging.getLogger(f"tyd.{self.__class__.__name__}")
 
     @staticmethod
     def __path_type(p):
@@ -57,9 +57,3 @@ class Cli:
         # Start bot
         tb = TelegramBot()
         tb.start()
-
-
-
-if __name__ == "__main__":
-    cli = Cli()
-    cli.start()
