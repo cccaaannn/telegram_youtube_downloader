@@ -34,6 +34,12 @@ sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped -
 
 **Optional flags**
 
+- You can set any config value with environment variables using `__` convention. [See configurations](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md#set-config-via-env)
+```shell
+-e telegram_bot_options__default_command=video
+-e telegram_bot_options__authorization_options__users__0__id=123
+-e telegram_bot_options__authorization_options__users__0__claims=audio,help
+```
 - To run bot with search feature
 ```shell
 -e YOUTUBE_API_KEY=<YOUTUBE_API_KEY>
@@ -45,15 +51,6 @@ sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped -
 - Mapping logs to a volume.
 ```shell
 -v /home/can/logs:/telegram_youtube_downloader/logs
-```
-- **Example with all flags**
-```shell
-sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped \
--e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
--e YOUTUBE_API_KEY=<YOUTUBE_API_KEY> \
--v <YOUR_CONFIGS_PATH>/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs \
--v <YOUR_LOGS_PATH>/logs:/telegram_youtube_downloader/logs \
-cccaaannn/telegram_youtube_downloader:latest
 ```
 
 ---

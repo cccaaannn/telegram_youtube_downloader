@@ -3,6 +3,7 @@
 ---
 
 ## Table of contents
+- [Set config via env](#set-config-via-env)
 - [logger_options](#logger_options)
 - [telegram_bot_options](#telegram_bot_options)
     - [base_url](#base_url)
@@ -17,15 +18,35 @@
 
 <br>
 
-### Configuration file `telegram_youtube_downloader\configs\config.yaml`.
+### Set config via env
+#### You can override any config value with environment variables using `__` as a separator between nested values.
+```bash
+# Example for setting default command
+export telegram_bot_options__default_command=video
+
+# Example for setting cookiefile for audio and video options
+export youtube_downloader_options__audio_options__cookiefile=/home/user/cookies.txt
+export youtube_downloader_options__video_options__cookiefile=/home/user/cookies.txt
+
+# Even array indexes can be used for nested values
+export telegram_bot_options__authorization_options__users__0__id=123
+export telegram_bot_options__authorization_options__users__0__claims=audio,help
+```
+
+---
+
+### Configuration file path `telegram_youtube_downloader\configs\config.yaml`.
 
 ---
 
 ### `logger_options`
 ```yaml
 logger_options:
-  log_path: logs   # Can be abs path
-  log_level: 20    # info
+  log_path: logs        # Can be abs path
+  root_log_level: 30    # Log level for other libraries
+  app_log_level: 20     # Log level for application
+  backup_count: 10      # Number of log files to keep
+  max_bytes: 10485760   # Max log file size (10MB)
 ```
 
 ---
@@ -102,7 +123,6 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200   # 20 min
   max_audio_duration_seconds: 3000   # 50 min
-  ffmpeg_location: null              # null will try to get from env as ffmpeg
 ```
 
 ### `audio_options` and `video_options`
@@ -182,10 +202,13 @@ youtube_downloader_options:
 ```yaml
 logger_options:
   log_path: logs                                  # Can be abs path
-  log_level: 20                                   # info
+  root_log_level: 30                              # Warning
+  app_log_level: 20                               # Info
+  backup_count: 10                                # Number of log files to keep
+  max_bytes: 10485760                             # Max log file size (10MB)
 
 telegram_bot_options:
-  text_timeout_seconds: 30
+  text_timeout_seconds: 30                        # 30 sec
   video_timeout_seconds: 300                      # 5 min  
   audio_timeout_seconds: 300                      # 5 min
 
@@ -202,7 +225,6 @@ youtube_search_options:
 youtube_downloader_options:
   max_video_duration_seconds: 1200                # 20 min
   max_audio_duration_seconds: 3000                # 50 min
-  ffmpeg_location: null                           # null will try to get from env as ffmpeg
 
   audio_options:                                  # audio_options are directly passed to youtube_dl on audio downloads
     postprocessors: 
