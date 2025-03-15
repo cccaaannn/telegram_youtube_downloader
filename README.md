@@ -70,7 +70,7 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TEL
 You can use a [cookie file](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies) to download without getting blocked.
 
 ```shell
-sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
 -e youtube_downloader_options__audio_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
 -e youtube_downloader_options__video_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
@@ -85,7 +85,7 @@ cccaaannn/telegram_youtube_downloader:latest
 You can set a [default command](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md#default_command) to run a download command on bare messages.
 
 ```shell
-sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
 -e telegram_bot_options__default_command=video \
 cccaaannn/telegram_youtube_downloader:latest
@@ -99,7 +99,7 @@ You can set authorization rules per user [see authorization config](https://gith
 If you have many users you can map the configs directory to a local directory and edit the config file.
 
 ```shell
-sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
 -e telegram_bot_options__authorization_options__mode=ALLOW_SELECTED \
 -e telegram_bot_options__authorization_options__users__0__claims=all \
@@ -117,7 +117,7 @@ cccaaannn/telegram_youtube_downloader:latest
 2. You can also map the configs directory to a local directory if you have too many custom configurations.
 
 ```shell
-sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
 -v <YOUR_LOGS_PATH>/logs:/telegram_youtube_downloader/logs \
 -v <YOUR_CONFIGS_PATH>/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs \
