@@ -164,3 +164,7 @@ dmypy.json
 
 # GitHub
 .github/
+
+# Docs
+docs/
+*.md
