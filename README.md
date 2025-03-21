@@ -153,7 +153,7 @@ cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
 
-🐳Or usage with Docker Compose(with local build in container):
+🐳Or usage with Docker Compose(with local build the container - it can be useful for development):
 1. Copy file `env_dist` to `.env` and fill it.
 2. (optional) If you want to use `telegram-bot-api` service copy the file `compose.override.yml_example` to `compose.override.yml`, also you can override any options from the main `compose.yml` in this file if you want(change to the image use instead local build, for example).
 3. Create the directory `docker/configs` and copy the config file from `telegram_youtube_downloader/configs/config.yaml` to `docker/configs/config.yaml` and make changes if needed.
