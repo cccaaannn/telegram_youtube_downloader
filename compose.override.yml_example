@@ -1,0 +1,14 @@
+services:
+  telegram-bot-api:
+    image: aiogram/telegram-bot-api:latest
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_API_ID
+      - TELEGRAM_API_HASH
+    volumes:
+      - ./docker/telegram_bot_api_data:/var/lib/telegram-bot-api
+
+  telegram-youtube-downloader:
+    image: cccaaannn/telegram_youtube_downloader:latest
+    depends_on:
+      - telegram-bot-api

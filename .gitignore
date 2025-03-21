@@ -139,6 +139,11 @@ dmypy.json
 
 # Temp (downloaded files)
 temp/
+downloads_temp/
 
 # Rolling logs
 *.log.*
+
+# Docker related
+docker/*
+docker-compose.override.yml

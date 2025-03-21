@@ -29,7 +29,8 @@ youtube_downloader_options:
   max_video_duration_seconds: 1200
   max_audio_duration_seconds: 3000
 ```
-3. (optional) If you don't have a fast machine file conversions might take too long on longer videos, you can remove `postprocessors` section to make it faster but you will get mkv files.
+3. (optional) If you don't have a fast machine file conversions might take too long on longer videos, you can remove `postprocessors` section to make it faster and you can set `merge_output_format`option to supported media container(better "mp4).
+*Info from yt-dl doccumentation: currently supported: avi, flv, mkv, mov, mp4, webm.*
 ```yaml
 youtube_downloader_options:
   video_options:
@@ -38,6 +39,7 @@ youtube_downloader_options:
     #     preferedformat: "mp4"
     format: "bestvideo+bestaudio"
     noplaylist: true
+    merge_output_format: "mp4"
 ```
 
 ## Docker compose
@@ -57,13 +59,11 @@ services:
           memory: 1G
     networks:
       - telegram_bot_internal
-    ports:
-      - 8081
     environment:
       TELEGRAM_API_ID: <API_ID>
       TELEGRAM_API_HASH: <API_HASH>
     volumes:
-      - <YOUR_BASE_PATH>/telegram_bot_api:/var/lib/telegram-bot-api
+      - ./docker/telegram_bot_api_data:/var/lib/telegram-bot-api
 
   telegram-youtube-downloader:
     image: cccaaannn/telegram_youtube_downloader:latest
@@ -79,8 +79,8 @@ services:
       TELEGRAM_BOT_KEY: <TELEGRAM_BOT_KEY>
     #   YOUTUBE_API_KEY: <YOUTUBE_API_KEY>
     volumes:
-      - <YOUR_BASE_PATH>/telegram_youtube_downloader/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs
-    #   - <YOUR_BASE_PATH>/telegram_youtube_downloader/logs:/telegram_youtube_downloader/logs
+      - ./docker/configs:/app/telegram_youtube_downloader/configs
+    #   - ./docker/logs:/app/logs
     depends_on:
       - telegram-bot-api
 

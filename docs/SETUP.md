@@ -46,11 +46,11 @@ sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped -
 ```
 - Mapping config folder to a volume for setting custom configurations.
 ```shell
--v /home/can/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs
+-v ./docker/configs:/app/telegram_youtube_downloader/configs
 ```
 - Mapping logs to a volume.
 ```shell
--v /home/can/logs:/telegram_youtube_downloader/logs
+-v ./docker/logs:/app/logs
 ```
 
 ---

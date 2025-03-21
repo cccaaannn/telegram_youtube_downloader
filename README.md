@@ -59,7 +59,7 @@ Performs a YouTube search to download. [Also see setup/search](https://github.co
 
 ## Running
 
-🚀 Simple usage. (To run without docker [see setup](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md))
+🚀 Simple usage with Docker. (To run without docker [see setup](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md))
 ```shell
 docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> cccaaannn/telegram_youtube_downloader:latest
 ```
@@ -75,6 +75,21 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e youtube_downloader_options__audio_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
 -e youtube_downloader_options__video_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
 -v <YOUR_COOKIES_PATH>/cookies:/telegram_youtube_downloader/cookies \
+cccaaannn/telegram_youtube_downloader:latest
+```
+</details>
+
+<details>
+<summary>⚙️ Example with Visitor data and PO Token</summary>
+
+You can use a [special paramaters](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies) to download without getting blocked.
+How to get these parameters by [YouTube trusted session generator](https://github.com/iv-org/youtube-trusted-session-generator)
+
+```shell
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+-e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
+-e youtube_downloader_options__audio_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
+-e youtube_downloader_options__video_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
@@ -137,6 +152,12 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
+
+🐳Or usage with Docker Compose(with local build in container):
+1. Copy file `env_dist` to `.env` and fill it.
+2. (optional) If you want to use `telegram-bot-api` service copy the file `compose.override.yml_example` to `compose.override.yml`, also you can override any options from the main `compose.yml` in this file if you want(change to the image use instead local build, for example).
+3. Create the directory `docker/configs` and copy the config file from `telegram_youtube_downloader/configs/config.yaml` to `docker/configs/config.yaml` and make changes if needed.
+4. Execute command `docker compose up -d`
 
 ## Daily build
 This project depends on [yt-dlp](https://github.com/yt-dlp/yt-dlp) and it is constantly updated, a [daily Docker build](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader/tags) pipeline added to keep the project up to date with external dependencies. It is not tested so might not be stable but if you are getting download errors on the latest version you can use daily until latest is fixed.
