@@ -8,10 +8,10 @@ locals {
 
   # Only add cookies settings if the cookie file provided and exists
   cookies_settings = length(var._2_cookie_file_path) == 0 ? "" : (
-    fileexists(var._2_cookie_file_path) ? "-e youtube_downloader_options__audio_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt -v ${local.remote_root_path}/cookies:/telegram_youtube_downloader/cookies" : ""
+    fileexists(var._2_cookie_file_path) ? "-e youtube_downloader_options__audio_options__cookiefile=/app/cookies/cookies.txt -v ${local.remote_root_path}/cookies:/app/cookies" : ""
   )
 
-  docker_command = "${local.base_docker_command} ${local.logs_volume} ${local.cookies_settings} cccaaannn/telegram_youtube_downloader:latest"
+  docker_command = "${local.base_docker_command} ${local.logs_volume} ${local.cookies_settings} ${var._3_extra_args} cccaaannn/telegram_youtube_downloader:latest"
 }
 
 data "aws_ami" "instance_ami" {
