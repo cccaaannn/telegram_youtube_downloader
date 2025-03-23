@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.12-alpine
 
 # Install system dependencies
 RUN apk add ffmpeg --no-cache
@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./requirements.txt .
 RUN pip install --upgrade pip -r requirements.txt
 
+# Add volumes for performance with io intensive operations
 VOLUME /app/logs
 VOLUME /app/temp
 

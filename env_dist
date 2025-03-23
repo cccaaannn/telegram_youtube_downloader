@@ -1,9 +1,0 @@
-# Required variable
-TELEGRAM_BOT_KEY=
-
-# Optional block
-YOUTUBE_API_KEY=
-
-# Requred if telegram-bot-api used
-TELEGRAM_API_ID=
-TELEGRAM_API_HASH=

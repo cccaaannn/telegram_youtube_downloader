@@ -1,0 +1,15 @@
+services:
+  telegram-youtube-downloader:
+    image: cccaaannn/telegram_youtube_downloader:latest
+    container_name: telegram-youtube-downloader
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    environment:
+      - TELEGRAM_BOT_KEY
+      - YOUTUBE_API_KEY
+    volumes:
+      - ./tyd_data/logs:/app/logs
+      # - ./tyd_data/configs:/app/telegram_youtube_downloader/configs
