@@ -4,6 +4,7 @@
 
 # docker
 Dockerfile
+docker-compose.*
 
 # log files
 *.log

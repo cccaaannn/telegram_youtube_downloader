@@ -28,6 +28,11 @@ export telegram_bot_options__default_command=video
 export youtube_downloader_options__audio_options__cookiefile=/home/user/cookies.txt
 export youtube_downloader_options__video_options__cookiefile=/home/user/cookies.txt
 
+# Example for setting user_data and po_token for audio and video options, that make possible to work without cookies
+# More info https://github.com/iv-org/youtube-trusted-session-generator
+export youtube_downloader_options__audio_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"'
+export youtube_downloader_options__video_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"'
+
 # Even array indexes can be used for nested values
 export telegram_bot_options__authorization_options__users__0__id=123
 export telegram_bot_options__authorization_options__users__0__claims=audio,help
@@ -142,6 +147,7 @@ youtube_downloader_options:
       - key: "FFmpegVideoConvertor"
         preferedformat: "mp4"
     format: "bestvideo+bestaudio"
+    merge_output_format: "mp4"
     noplaylist: true
 ```
 
@@ -233,12 +239,25 @@ youtube_downloader_options:
     format: "bestaudio/best"                      # format will be overridden by the default format on the formats section
     noplaylist: true
 
+    # Option to make possible to work with youtube without cookies. More info and how to get https://github.com/iv-org/youtube-trusted-session-generator
+    # extractor_args: '"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"'
+
+    # Proxy for video downloads (when YouTube bans your server IP address, or as a workaround for geo-restrictions)
+    # proxy: "172.17.0.1:3128"
+
   video_options:                                  # video_options are directly passed to youtube_dl on video downloads
     postprocessors: 
       - key: "FFmpegVideoConvertor"
         preferedformat: "mp4"
     format: "bestvideo+bestaudio"                 # format will be overridden by the default format on the formats section
+    merge_output_format: "mp4"                    # Prevents video conversion if possible
     noplaylist: true
+
+    # Option to make possible to work with youtube without cookies. More info and how to get https://github.com/iv-org/youtube-trusted-session-generator
+    # extractor_args: '"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"'
+
+    # Proxy for video downloads (when YouTube bans your server IP address, or as a workaround for geo-restrictions)
+    # proxy: "172.17.0.1:3128"
 
   allowed_url_patterns:                           # Array of url regex for allowed paths, names will be used on '/sites' command
     - name: All sites allowed
@@ -267,5 +286,4 @@ youtube_downloader_options:
         is_default: true
       - name: worst
         value: "worstaudio/worst"
-
 ```

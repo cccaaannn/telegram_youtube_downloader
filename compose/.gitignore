@@ -1,0 +1,10 @@
+# Docker data
+/tyd_data
+/data
+/docker
+
+# Env data
+.env
+
+# Override composes
+*.override.yaml

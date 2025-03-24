@@ -59,7 +59,7 @@ Performs a YouTube search to download. [Also see setup/search](https://github.co
 
 ## Running
 
-🚀 Simple usage. (To run without docker [see setup](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md))
+🚀 Simple usage with Docker. (To run without docker [see setup](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md))
 ```shell
 docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> cccaaannn/telegram_youtube_downloader:latest
 ```
@@ -72,9 +72,24 @@ You can use a [cookie file](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exp
 ```shell
 docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
--e youtube_downloader_options__audio_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
--e youtube_downloader_options__video_options__cookiefile=/telegram_youtube_downloader/cookies/cookies.txt \
--v <YOUR_COOKIES_PATH>/cookies:/telegram_youtube_downloader/cookies \
+-e youtube_downloader_options__audio_options__cookiefile=/app/cookies/cookies.txt \
+-e youtube_downloader_options__video_options__cookiefile=/app/cookies/cookies.txt \
+-v <YOUR_COOKIES_PATH>/cookies:/app/cookies \
+cccaaannn/telegram_youtube_downloader:latest
+```
+</details>
+
+<details>
+<summary>🪪 Example with visitor data and PO token</summary>
+
+You can use [visitor data and PO token](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies) to download without getting blocked.
+To get get these parameters use [YouTube trusted session generator](https://github.com/iv-org/youtube-trusted-session-generator) project.
+
+```shell
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+-e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
+-e youtube_downloader_options__audio_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
+-e youtube_downloader_options__video_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
@@ -119,8 +134,8 @@ cccaaannn/telegram_youtube_downloader:latest
 ```shell
 docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
--v <YOUR_LOGS_PATH>/logs:/telegram_youtube_downloader/logs \
--v <YOUR_CONFIGS_PATH>/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs \
+-v <YOUR_LOGS_PATH>/logs:/app/logs \
+-v <YOUR_CONFIGS_PATH>/configs:/app/telegram_youtube_downloader/configs \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
@@ -137,6 +152,19 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
+
+<details>
+<summary>🐳 Example with compose</summary>
+
+You can use docker compose to run. [See docker compose](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md#2-docker-compose).
+
+- Copy `compose/.env.template` to `compose/.env`, add your `TELEGRAM_BOT_KEY`
+
+```shell
+docker compose -f compose/default.yaml up -d
+```
+</details>
+
 
 ## Daily build
 This project depends on [yt-dlp](https://github.com/yt-dlp/yt-dlp) and it is constantly updated, a [daily Docker build](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader/tags) pipeline added to keep the project up to date with external dependencies. It is not tested so might not be stable but if you are getting download errors on the latest version you can use daily until latest is fixed.

@@ -39,6 +39,7 @@ youtube_downloader_options:
         preferedformat: "mp4"
     format: "bestvideo+bestaudio"                 # format will be overridden by the default format on the formats section
     noplaylist: true
+    merge_output_format: "mp4"                    # Prevents video conversion if possible
 
   allowed_url_patterns:                           # Array of url regex for allowed paths, names will be used on '/sites' command
     - name: All sites allowed

@@ -1,0 +1,50 @@
+services:
+  telegram-bot-api:
+    image: aiogram/telegram-bot-api:latest
+    container_name: telegram-bot-api
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - telegram_bot_internal
+    environment:
+      - TELEGRAM_API_ID
+      - TELEGRAM_API_HASH
+    volumes:
+      - ./tyd_data/telegram_bot_api_data:/var/lib/telegram-bot-api
+
+  telegram-youtube-downloader:
+
+    # Use image from Docker Hub
+    image: cccaaannn/telegram_youtube_downloader:latest
+
+    # Use local build
+    # build: ../
+
+    container_name: telegram-youtube-downloader
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - telegram_bot_internal
+    environment:
+      - telegram_bot_options__base_url=http://telegram-bot-api:8081/bot
+      - telegram_bot_options__video_timeout_seconds=300
+      - telegram_bot_options__audio_timeout_seconds=300
+      - youtube_downloader_options__max_video_duration_seconds=1200
+      - youtube_downloader_options__max_audio_duration_seconds=3000
+      - TELEGRAM_BOT_KEY
+      - YOUTUBE_API_KEY
+    volumes:
+      - ./tyd_data/telegram_youtube_downloader/logs:/app/logs
+      # - ./tyd_data/telegram_youtube_downloader/configs:/app/telegram_youtube_downloader/configs
+    depends_on:
+      - telegram-bot-api
+
+networks:
+  telegram_bot_internal:
+    name: telegram_bot_internal
