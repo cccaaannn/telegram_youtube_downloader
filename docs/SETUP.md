@@ -6,9 +6,10 @@
 - [Preliminary steps](#preliminary-steps)
 - [Running](#running)
     1. [Docker](#1-docker)
-    2. [Terraform](#2-terraform)
-    3. [Ubuntu (with python)](#3-ubuntu)
-    4. [Windows (with python)](#4-windows)
+    2. [Docker compose](#2-docker-compose)
+    3. [Terraform](#3-terraform)
+    4. [Ubuntu (with python)](#4-ubuntu)
+    5. [Windows (with python)](#5-windows)
 - [Search command](#search-command)
 - [Alternative ways to pass keys](#alternative-ways-to-pass-keys)
 
@@ -47,16 +48,30 @@
     ```
 - Mapping config folder to a volume for setting custom configurations.
     ```shell
-    -v /home/can/configs:/telegram_youtube_downloader/telegram_youtube_downloader/configs
+    -v <YOUR_BASE_PATH>/configs:/app/telegram_youtube_downloader/configs
     ```
 - Mapping logs to a volume.
     ```shell
-    -v /home/can/logs:/telegram_youtube_downloader/logs
+    -v <YOUR_BASE_PATH>/logs:/app/logs
     ```
 
 ---
 
-## 2. Terraform
+## 2. Docker compose
+1. Copy `compose/.env.template` to `compose/.env`, add your `TELEGRAM_BOT_KEY`
+2. Run with `docker compose -f compose/default.yaml up -d`
+3. (optional) You can add more custom configuration in your `.env` or directly update compose files.
+
+- Container data is saved under `compose/tyd_data` by default, you can configure it from composes.
+
+- There are multiple prebuilt compose examples under `/compose`
+    - Use with DockerHub build `docker compose -f compose/default.yaml up -d`
+    - Use with local build `docker compose -f compose/local.yaml up -d`
+    - Use with api server `docker compose -f compose/apisv.yaml up -d`
+
+---
+
+## 3. Terraform
 
 1. Prepare cli tools
     1. Install [terraform cli](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
@@ -92,7 +107,7 @@
     ```shell
     ssh -i aws-tyd-key.pem ec2-user@<ec2-ip>
     ```
-- Update your cookies file, if provided
+- Update your cookies file on ec2, if provided
     - You might need to `chmod 700 aws-tyd-key.pem` on linux.
     ```shell
     scp -i aws-tyd-key.pem <cookiefile-path>/cookies.txt ec2-user@<ec2-ip>:/telegram_youtube_downloader/cookies/cookies.txt
@@ -100,7 +115,7 @@
 
 ---
 
-## 3. Ubuntu
+## 4. Ubuntu
 - Tested with `Ubuntu 24` - `Python 3.12`
 1. Install ffmpeg
     ```shell
@@ -144,7 +159,7 @@
 
 ---
 
-## 4. Windows
+## 5. Windows
 - Tested with `Windows 10` - `Python 3.12`
 1. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
     - Add `ffmpeg` to path.
