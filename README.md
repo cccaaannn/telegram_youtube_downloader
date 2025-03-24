@@ -36,7 +36,7 @@
 <details>
 <summary><strong>🔎 Search command</strong></summary>
 
-Performs a YouTube search to download. [Also see setup/search](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md#search-command)
+Performs a YouTube search to download. [See setup/search](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md#search-command)
 
 ```shell
 /search <query>
@@ -137,6 +137,20 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
+
+<details>
+<summary>🏗️ Example with terraform</summary>
+
+You can use terraform to deploy the bot. [See setup/terraform](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md#2-terraform)
+
+```shell
+git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
+cd telegram_youtube_downloader/terraform/aws
+terraform init
+terraform apply
+```
+</details>
+
 
 ## Daily build
 This project depends on [yt-dlp](https://github.com/yt-dlp/yt-dlp) and it is constantly updated, a [daily Docker build](https://hub.docker.com/r/cccaaannn/telegram_youtube_downloader/tags) pipeline added to keep the project up to date with external dependencies. It is not tested so might not be stable but if you are getting download errors on the latest version you can use daily until latest is fixed.
