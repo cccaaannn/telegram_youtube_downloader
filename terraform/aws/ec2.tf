@@ -4,7 +4,7 @@ locals {
 
 
   base_docker_command = "sudo docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TELEGRAM_BOT_KEY=${var._1_telegram_bot_key}"
-  logs_volume = "-v ${local.remote_root_path}/logs:/telegram_youtube_downloader/logs"
+  logs_volume = "-v ${local.remote_root_path}/logs:/app/logs"
 
   # Only add cookies settings if the cookie file provided and exists
   cookies_settings = length(var._2_cookie_file_path) == 0 ? "" : (
