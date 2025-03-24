@@ -65,36 +65,6 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TEL
 ```
 
 <details>
-<summary>🍪 Example with cookie file</summary>
-
-You can use a [cookie file](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies) to download without getting blocked.
-
-```shell
-docker run -d --name telegram_youtube_downloader --restart unless-stopped \
--e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
--e youtube_downloader_options__audio_options__cookiefile=/app/cookies/cookies.txt \
--e youtube_downloader_options__video_options__cookiefile=/app/cookies/cookies.txt \
--v <YOUR_COOKIES_PATH>/cookies:/app/cookies \
-cccaaannn/telegram_youtube_downloader:latest
-```
-</details>
-
-<details>
-<summary>🪪 Example with visitor data and PO token</summary>
-
-You can use [visitor data and PO token](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies) to download without getting blocked.
-To get get these parameters use [YouTube trusted session generator](https://github.com/iv-org/youtube-trusted-session-generator) project.
-
-```shell
-docker run -d --name telegram_youtube_downloader --restart unless-stopped \
--e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
--e youtube_downloader_options__audio_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
--e youtube_downloader_options__video_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
-cccaaannn/telegram_youtube_downloader:latest
-```
-</details>
-
-<details>
 <summary>🏠 Example with default command</summary>
 
 You can set a [default command](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md#default_command) to run a download command on bare messages.
@@ -149,6 +119,36 @@ You can use search command to search videos on YouTube. [See search feature](htt
 docker run -d --name telegram_youtube_downloader --restart unless-stopped \
 -e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
 -e YOUTUBE_API_KEY=<YOUTUBE_API_KEY> \
+cccaaannn/telegram_youtube_downloader:latest
+```
+</details>
+
+<details>
+<summary>🍪 Example with cookie file</summary>
+
+You can use a [cookie file](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies) to download without getting blocked.
+
+```shell
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+-e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
+-e youtube_downloader_options__audio_options__cookiefile=/app/cookies/cookies.txt \
+-e youtube_downloader_options__video_options__cookiefile=/app/cookies/cookies.txt \
+-v <YOUR_COOKIES_PATH>/cookies:/app/cookies \
+cccaaannn/telegram_youtube_downloader:latest
+```
+</details>
+
+<details>
+<summary>🪪 Example with PO token</summary>
+
+You can use [visitor data and PO token](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies) on downloads to bypass blocking on some sites. 
+- You can use [YouTube trusted session generator](https://github.com/iv-org/youtube-trusted-session-generator) project to get PO token and visitor data for YouTube.
+
+```shell
+docker run -d --name telegram_youtube_downloader --restart unless-stopped \
+-e TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY> \
+-e youtube_downloader_options__audio_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
+-e youtube_downloader_options__video_options__extractor_args='"youtubetab:skip=webpage;youtube:player_skip=webpage,configs;visitor_data=<VISITOR_DATA>;youtube:po_token=web.gvs+<PO_TOKEN>"' \
 cccaaannn/telegram_youtube_downloader:latest
 ```
 </details>
