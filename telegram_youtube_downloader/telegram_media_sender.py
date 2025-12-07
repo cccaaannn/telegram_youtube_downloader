@@ -47,14 +47,13 @@ class TelegramMediaSender:
     def send_audio(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
         try:
             with open(file_path, 'rb') as audio:
-                filename = os.path.basename(file_path)
                 payload = {
                     'chat_id': chat_id,
                     'title': title,
                     'parse_mode': 'HTML'
                 }
                 files = {
-                    'audio': (filename, audio.read()),
+                    'audio': (title, audio.read()),
                 }
                 url = f"{self.__base_url}{self.__bot_key}/sendAudio"
                 timeout = self.__telegram_options.audio_timeout_seconds
@@ -85,14 +84,13 @@ class TelegramMediaSender:
     def send_video(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
         try:
             with open(file_path, 'rb') as video:
-                filename = os.path.basename(file_path)
                 payload = {
                     'chat_id': chat_id,
                     'title': title,
                     'parse_mode': 'HTML'
                 }
                 files = {
-                    'video': (filename, video.read()),
+                    'video': (title, video.read()),
                 }
                 url = f"{self.__base_url}{self.__bot_key}/sendVideo"
                 timeout = self.__telegram_options.video_timeout_seconds

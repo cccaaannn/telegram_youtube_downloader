@@ -15,7 +15,7 @@ class YoutubeDlOptions:
             # Spread values from config file
             **self.__youtube_dl_options.audio_options,
 
-            "outtmpl": os.path.join(save_dir, "%(title)s.%(ext)s"),
+            "outtmpl": os.path.join(save_dir, "TEMP.%(ext)s"),
 
             # For custom downloader class 
             "content_type": ContentType.AUDIO,
@@ -27,7 +27,7 @@ class YoutubeDlOptions:
             # Spread values from config file
             **self.__youtube_dl_options.video_options,
 
-            "outtmpl": os.path.join(save_dir, "%(title)s.%(ext)s"),
+            "outtmpl": os.path.join(save_dir, "TEMP.%(ext)s"),
 
             # For custom downloader class 
             "content_type": ContentType.VIDEO,
