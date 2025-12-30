@@ -1,0 +1,15 @@
+[project]
+name = "telegram-youtube-downloader"
+version = "5.1.0"
+description = "Telegram bot for downloading video or audio from multiple sites"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dacite>=1.9.2",
+    "python-telegram-bot>=22.1",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.4",
+    "yt-dlp>=2025.12.08",
+    "isodate>=0.7.2",
+    "google-api-python-client>=2.173.0",
+]
