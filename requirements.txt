@@ -1,9 +1,7 @@
-python-telegram-bot==21.3
-yt-dlp>=2025.02.19
+yt-dlp>=2025.12.08
+python-telegram-bot
 requests
 PyYAML
 dacite
-
-# Optional (for search functionality)
 google-api-python-client
 isodate
