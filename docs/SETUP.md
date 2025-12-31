@@ -116,19 +116,12 @@
 ---
 
 ## 4. Ubuntu
-- Tested with `Ubuntu 24` - `Python 3.12`
-1. Install ffmpeg
+1. Install [uv](https://docs.astral.sh/uv/)
+2. Install ffmpeg
     ```shell
     sudo apt update
     sudo apt upgrade -y
     sudo apt install ffmpeg -y
-    ```
-2. Install python and virtualenv
-    ```shell
-    sudo apt install python3 -y
-    sudo apt install python3-pip -y
-
-    sudo apt install python3-virtualenv -y
     ```
 3. Add your bot key to environment. Also check the [alternative ways to pass keys](#Alternative-ways-to-pass-keys).
     ```shell
@@ -140,41 +133,38 @@
     export YOUTUBE_API_KEY=<YOUTUBE_API_KEY>
     source ~/.bashrc
     ```
-4. Install the repository and run the bot 
+4. Clone the repository
     ```shell
-    # Install repository
     git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
     cd telegram_youtube_downloader
-
-    # Create virtualenv
-    virtualenv venv
-    source venv/bin/activate
-
-    # Install requirements
-    pip install -r requirements.txt
-
-    # Run
-    python telegram_youtube_downloader
+    ```
+5. Clone the repository
+    ```shell
+    uv run telegram_youtube_downloader
     ```
 
 ---
 
 ## 5. Windows
-- Tested with `Windows 10` - `Python 3.12`
-1. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
+1. Install [uv](https://docs.astral.sh/uv/)
+2. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/).
     - Add `ffmpeg` to path.
-2. Install python from [python.org](https://www.python.org/downloads/).
-3. Install requirements.
-    ```shell
-    pip install -r requirements.txt
-    ```
-4. Run on cmd/terminal. Also check [Alternative ways to pass keys](#Alternative-ways-to-pass-keys).
-    ```shell
-    python telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>
+3. Add your bot key to environment. Also check the [alternative ways to pass keys](#Alternative-ways-to-pass-keys).
+    ```cmd
+    set TELEGRAM_BOT_KEY=<TELEGRAM_BOT_KEY>
     ```
 - (optional) To run bot with search feature
+    ```cmd
+    set YOUTUBE_API_KEY=<YOUTUBE_API_KEY>
+    ```
+4. Clone the repository
     ```shell
-    python telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>,<YOUTUBE_API_KEY>
+    git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
+    cd telegram_youtube_downloader
+    ```
+5. Clone the repository
+    ```shell
+    uv run telegram_youtube_downloader
     ```
 
 ---
@@ -189,18 +179,18 @@
     - `TELEGRAM_BOT_KEY` key must be present on environment variables.
     - To use `/search`, `YOUTUBE_API_KEY` key must be present on environment variables.
     ```shell
-    python telegram_youtube_downloader
+    uv run telegram_youtube_downloader
     ```
 2. With file
     - First line has to be <TELEGRAM_BOT_KEY>.
     - To use `/search`, <YOUTUBE_API_KEY> should be on the second line.
     ```shell
-    python telegram_youtube_downloader -f <FILE_PATH_FOR_KEYS>
+    uv run telegram_youtube_downloader -f <FILE_PATH_FOR_KEYS>
     ```
 3. Directly
     ```shell
-    python telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>
+    uv run telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>
     ```
     ```shell
-    python telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>,<YOUTUBE_API_KEY>
+    uv run telegram_youtube_downloader -k <TELEGRAM_BOT_KEY>,<YOUTUBE_API_KEY>
     ```
