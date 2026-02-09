@@ -7,7 +7,9 @@ RUN apk add ffmpeg --no-cache
 WORKDIR /app
 COPY ./pyproject.toml ./uv.lock ./
 ENV UV_NO_DEV=1
-RUN uv sync --locked
+
+# Upgrade unpinned dependencies
+RUN uv sync --upgrade 
 
 # Add volumes for performance with io intensive operations
 VOLUME /app/logs
