@@ -53,7 +53,7 @@ class TelegramMediaSender:
                     'parse_mode': 'HTML'
                 }
                 files = {
-                    'audio': (title, audio.read()),
+                    'audio': (f"{title}.mp3", audio.read()),
                 }
                 url = f"{self.__base_url}{self.__bot_key}/sendAudio"
                 timeout = self.__telegram_options.audio_timeout_seconds
