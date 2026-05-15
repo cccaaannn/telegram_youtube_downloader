@@ -53,7 +53,7 @@ class TelegramBot:
 	def start(self):
 		"""Starts pooling (blocking)"""
 
-		async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+		async def error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
 			self.__logger.error(
 				f"Exception while handling an update {update}", exc_info=context.error
 			)
@@ -61,6 +61,10 @@ class TelegramBot:
 		@TelegramBotErrorHandler.command_handler(command_usage="/about")
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "about"})
 		async def about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+			message = update.message
+			if message is None:
+				return
+
 			ans = textwrap.dedent("""\
                 [About]
 
@@ -68,11 +72,15 @@ class TelegramBot:
                 https://github.com/cccaaannn/telegram_youtube_downloader
 
                 Author Can Kurt""")
-			await update.message.reply_text(ans)
+			await message.reply_text(ans)
 
 		@TelegramBotErrorHandler.command_handler(command_usage="/help")
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "help"})
 		async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+			message = update.message
+			if message is None:
+				return
+
 			ans = textwrap.dedent(f"""\
                 [Commands]
 
@@ -97,39 +105,49 @@ class TelegramBot:
                 /sites
 
                 Maximum durations are set by the operator of the bot.""")
-			await update.message.reply_text(ans)
+			await message.reply_text(ans)
 
 		@TelegramBotErrorHandler.command_handler(command_usage="/formats")
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "formats"})
 		async def formats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+			message = update.message
+			if message is None:
+				return
+
 			ans = f"[Available formats]\n\n[audio]\n{self.downloader.get_download_formats(ContentType.AUDIO)}\n[video]\n{self.downloader.get_download_formats(ContentType.VIDEO)}\nThese are only preferred formats and may not be available for the video."
-			await update.message.reply_text(ans)
+			await message.reply_text(ans)
 
 		@TelegramBotErrorHandler.command_handler(command_usage="/sites")
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "sites"})
 		async def sites(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+			message = update.message
+			if message is None:
+				return
+
 			ans = f"[Supported sites]\n\n{self.downloader.get_allowed_url_names()}"
-			await update.message.reply_text(ans)
+			await message.reply_text(ans)
 
 		@TelegramBotErrorHandler.command_handler(
 			command_usage="/audio <download url> or /audio <format> <download url>\n/formats for available formats"
 		)
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "audio"})
 		async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-			if len(context.args) > 2 or len(context.args) < 1:
+			message = update.message
+			args = context.args
+			if message is None or args is None:
+				raise ValueError()
+			if not (1 <= len(args) <= 2):
 				raise ValueError()
 
-			chat_id = update.message.chat.id
+			chat_id = message.chat.id
 
 			# Check arguments
-			if len(context.args) == 2:
-				dl_format_name = context.args[0]
-				url = context.args[1]
-			if len(context.args) == 1:
-				url = context.args[0]
-				dl_format_name = None
+			if len(args) == 2:
+				dl_format_name, url = args[0], args[1]
+			else:
+				url, dl_format_name = args[0], None
 
-			await update.message.reply_text("⬇️🎧 Download Starting...")
+			await message.reply_text("⬇️🎧 Download Starting...")
 
 			dt = DownloadThread(
 				downloader=self.downloader,
@@ -146,20 +164,22 @@ class TelegramBot:
 		)
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "video"})
 		async def video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-			if len(context.args) > 2 or len(context.args) < 1:
+			message = update.message
+			args = context.args
+			if message is None or args is None:
+				raise ValueError()
+			if not (1 <= len(args) <= 2):
 				raise ValueError()
 
-			chat_id = update.message.chat.id
+			chat_id = message.chat.id
 
 			# Check arguments
-			if len(context.args) == 2:
-				dl_format_name = context.args[0]
-				url = context.args[1]
-			if len(context.args) == 1:
-				url = context.args[0]
-				dl_format_name = None
+			if len(args) == 2:
+				dl_format_name, url = args[0], args[1]
+			else:
+				url, dl_format_name = args[0], None
 
-			await update.message.reply_text("⬇️📽️ Download Starting...")
+			await message.reply_text("⬇️📽️ Download Starting...")
 
 			dt = DownloadThread(
 				downloader=self.downloader,
@@ -174,18 +194,22 @@ class TelegramBot:
 		@TelegramBotErrorHandler.command_handler(command_usage="/search <query>")
 		@TelegramBotCommandInterceptor.secured_command(function_claims={"all", "search"})
 		async def search(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+			message = update.message
+			args = context.args
+			user_data = context.user_data
+			if message is None or args is None or user_data is None:
+				raise ValueError()
+
 			# Bot can be started without youtube api key
 			if not self.youtube_searcher.is_initialized():
-				await update.message.reply_text(
-					"Search is not activated by the operator of this bot"
-				)
+				await message.reply_text("Search is not activated by the operator of this bot")
 				return
 
 			# Get and validate query from params
 			# Ex: /search sample youtube video  ->  args[0]=sample ...
-			query = " ".join(context.args).strip()
+			query = " ".join(args).strip()
 			if not query or query.isspace():
-				await update.message.reply_text("Invalid search query")
+				await message.reply_text("Invalid search query")
 				return
 
 			# Run search
@@ -193,15 +217,15 @@ class TelegramBot:
 				search_result = self.youtube_searcher.search(query=query)
 			except SearchError as se:
 				self.__logger.warning(str(se))
-				await update.message.reply_text(str(se))
+				await message.reply_text(str(se))
 				return
 
 			# Fill keyboard and user_data[urls], keyboard's callback_data can not hold url info since it is too large so it is stored in user_data provided by telegram bot library
-			context.user_data["urls"] = []
+			user_data["urls"] = []
 			keyboard = []
 
 			for index, result in enumerate(search_result):
-				context.user_data["urls"].append(result["url"])
+				user_data["urls"].append(result["url"])
 				keyboard.append(
 					[
 						InlineKeyboardButton(
@@ -213,9 +237,7 @@ class TelegramBot:
 					]
 				)  # limit title size with 50 characters
 
-			await update.message.reply_text(
-				"Choose a video", reply_markup=InlineKeyboardMarkup(keyboard)
-			)
+			await message.reply_text("Choose a video", reply_markup=InlineKeyboardMarkup(keyboard))
 
 		@TelegramBotErrorHandler.menu_handler()
 		async def search_video_selection_menu_handler(
@@ -226,11 +248,15 @@ class TelegramBot:
 			When user makes a selection it is saved to user_data["selected_url"] and second menus keyboard is sent.
 			"""
 
-			data = update.callback_query.data
 			query = update.callback_query
+			user_data = context.user_data
+			if query is None or query.data is None or user_data is None:
+				return
+
+			data = query.data
 
 			# Since first menu is always called by /search command user_data["urls"] will be full
-			context.user_data["selected_url"] = context.user_data["urls"][int(data)]
+			user_data["selected_url"] = user_data["urls"][int(data)]
 			keyboard = [
 				[
 					InlineKeyboardButton(
@@ -256,15 +282,18 @@ class TelegramBot:
 			When user makes a selection, using it and user_data["selected_url"] starts download process
 			"""
 
-			chat_id = update.callback_query.message.chat.id
-			url = context.user_data["selected_url"]
-
-			data = update.callback_query.data
 			query = update.callback_query
+			user_data = context.user_data
+			if query is None or query.data is None or query.message is None or user_data is None:
+				return
+
+			chat_id = query.message.chat.id
+			url = user_data["selected_url"]
+			data = query.data
 
 			# Clear user_data
-			del context.user_data["selected_url"]
-			del context.user_data["urls"]
+			del user_data["selected_url"]
+			del user_data["urls"]
 
 			if data == "{{audio}}":
 				await query.edit_message_text(
@@ -299,18 +328,25 @@ class TelegramBot:
 		async def default_message_handler(
 			update: Update, context: ContextTypes.DEFAULT_TYPE
 		) -> None:
-			context.args = [update.message.text]
+			message = update.message
+			if message is None or message.text is None:
+				return
+
+			context.args = [message.text]  # type: ignore[assignment]
 			if self.__default_command == DefaultCommandType.AUDIO:
 				await audio(update, context)
 			elif self.__default_command == DefaultCommandType.VIDEO:
 				await video(update, context)
 			else:
-				await update.message.reply_text(
+				await message.reply_text(
 					f"Invalid default command type set ({self.__default_command}), available types are {[enm.value for enm in DefaultCommandType]}"
 				)
 
 		self.__logger.info("Starting with app config")
 		self.__logger.info(self.__app_config)
+
+		if self.__bot_key is None:
+			raise ValueError("Telegram bot key is not set")
 
 		application_builder = Application.builder().token(self.__bot_key)
 
@@ -337,16 +373,20 @@ class TelegramBot:
 		# Search menu handler
 		application.add_handler(CommandHandler("search", search))
 		application.add_handler(CommandHandler("s", search))
+
+		# Everything except {{video}} or {{audio}}
 		application.add_handler(
 			CallbackQueryHandler(
 				search_video_selection_menu_handler, pattern=r"^(?!{{video}}$|{{audio}}$).*"
 			)
-		)  # Everything except {{video}} or {{audio}}
+		)
+
+		# Only {{video}} or {{audio}}
 		application.add_handler(
 			CallbackQueryHandler(
 				search_download_type_menu_handler, pattern=r"^{{video}}$|^{{audio}}$"
 			)
-		)  # Only {{video}} or {{audio}}
+		)
 
 		# Default message handler
 		if self.__default_command is not None:
