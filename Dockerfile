@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine
+FROM ghcr.io/astral-sh/uv:python3.14-alpine
 
 # Install system dependencies
 RUN apk add ffmpeg --no-cache
