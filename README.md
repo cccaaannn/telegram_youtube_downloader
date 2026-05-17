@@ -154,7 +154,7 @@ cccaaannn/telegram_youtube_downloader:latest
 </details>
 
 <details>
-<summary>🐳 Example with compose</summary>
+<summary>🐋 Example with compose</summary>
 
 You can use docker compose to run. [See docker compose](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/SETUP.md#2-docker-compose).
 
@@ -189,3 +189,14 @@ docker run -d --name telegram_youtube_downloader --restart unless-stopped -e TEL
 - [Configurations](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/CONFIGURATIONS.md) for all configurable options.
 - [Hardware Acceleration](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/HARDWARE_ACCELERATION.md) for using ffmpeg with hardware acceleration.
 - [Api Server](https://github.com/cccaaannn/telegram_youtube_downloader/blob/master/docs/API_SERVER.md) for using with custom telegram api server with increased download limits.
+
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=cccaaannn%2Ftelegram_youtube_downloader&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=cccaaannn/telegram_youtube_downloader&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=cccaaannn/telegram_youtube_downloader&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=cccaaannn/telegram_youtube_downloader&type=date&legend=bottom-right" />
+ </picture>
+</a>
