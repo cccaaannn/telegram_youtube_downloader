@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
-from typing import List, Optional
 import inspect
+from typing import List, Optional
+from dataclasses import field, dataclass
 
-from statics.default_command_type import DefaultCommandType
-from statics.authorization_mode import AuthorizationMode
-from data.dl_format import DlFormat
+from telegram_youtube_downloader.data.dl_format import DlFormat
+from telegram_youtube_downloader.statics.authorization_mode import AuthorizationMode
+from telegram_youtube_downloader.statics.default_command_type import DefaultCommandType
 
 
 @dataclass
@@ -15,6 +15,7 @@ class LoggerOptions:
 	backup_count: int
 	max_bytes: int
 
+
 @dataclass
 class AuthorizationUser:
 	id: int
@@ -23,10 +24,12 @@ class AuthorizationUser:
 	def split_claims(self):
 		return self.claims.split(",")
 
+
 @dataclass
 class AuthorizationOptions:
 	mode: AuthorizationMode
 	users: List[AuthorizationUser] = field(default_factory=list)
+
 
 @dataclass
 class TelegramBotOptions:
@@ -35,27 +38,34 @@ class TelegramBotOptions:
 	audio_timeout_seconds: int
 	base_url: Optional[str] = None
 	default_command: Optional[DefaultCommandType] = None
-	authorization_options: AuthorizationOptions = field(default_factory=lambda: AuthorizationOptions(AuthorizationMode.DISABLED, []))
+	authorization_options: AuthorizationOptions = field(
+		default_factory=lambda: AuthorizationOptions(AuthorizationMode.DISABLED, [])
+	)
+
 
 @dataclass
 class YoutubeSearchOptions:
 	max_results: int
+
 
 @dataclass
 class AllowedUrlPattern:
 	name: str
 	pattern: str
 
+
 @dataclass
 class YoutubeFormats:
 	VIDEO: List[DlFormat]
 	AUDIO: List[DlFormat]
+
 	def from_string(self, content_type: str) -> List[DlFormat]:
 		if content_type == "VIDEO":
 			return self.VIDEO
 		if content_type == "AUDIO":
 			return self.AUDIO
 		return []
+
 
 @dataclass
 class YoutubeDownloaderOptions:
@@ -65,6 +75,7 @@ class YoutubeDownloaderOptions:
 	video_options: dict = field(default_factory=dict)
 	allowed_url_patterns: List[AllowedUrlPattern] = field(default_factory=list)
 	formats: YoutubeFormats = field(default_factory=lambda: YoutubeFormats([], []))
+
 
 @dataclass
 class AppConfig:

@@ -162,9 +162,13 @@
     git clone https://github.com/cccaaannn/telegram_youtube_downloader.git
     cd telegram_youtube_downloader
     ```
-5. Clone the repository
+5. Run the bot
     ```shell
     uv run telegram_youtube_downloader
+    ```
+- Or
+    ```shell
+    uv run tyd
     ```
 
 ---
