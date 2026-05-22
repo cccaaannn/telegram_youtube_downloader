@@ -7,7 +7,7 @@ dependencies = [
     "dacite==1.9.2",
     "python-telegram-bot==22.7",
     "pyyaml==6.0.3",
-    "requests==2.34.0",
+    "requests==2.34.2",
     "yt-dlp",
     "isodate==0.7.2",
     "google-api-python-client==2.196.0",
@@ -16,7 +16,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pyright>=1.1.409,<2",
-    "ruff>=0.15.12,<1",
+    "ruff>=0.15.13,<1",
 ]
 
 [build-system]
