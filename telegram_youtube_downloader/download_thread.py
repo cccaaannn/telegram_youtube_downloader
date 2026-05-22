@@ -39,7 +39,10 @@ class DownloadThread(threading.Thread):
 
 		upload_start = time.time()
 		self.media_sender.send_audio(
-			chat_id=self.chat_id, file_path=result.file_path, title=result.video_title, remove=True
+			chat_id=self.chat_id,
+			file_path=result.file_path,
+			file_name=result.file_name,
+			remove=True,
 		)
 		self.media_sender.send_text(self.chat_id, "🥳")
 		self.__logger.info(
@@ -61,7 +64,10 @@ class DownloadThread(threading.Thread):
 
 		upload_start = time.time()
 		self.media_sender.send_video(
-			chat_id=self.chat_id, file_path=result.file_path, title=result.video_title, remove=True
+			chat_id=self.chat_id,
+			file_path=result.file_path,
+			file_name=result.file_name,
+			remove=True,
 		)
 		self.media_sender.send_text(self.chat_id, "🥳")
 		self.__logger.info(

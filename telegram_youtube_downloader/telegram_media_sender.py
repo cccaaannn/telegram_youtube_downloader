@@ -1,7 +1,6 @@
 import os
 import shutil
 import logging
-import pathlib
 
 import requests
 
@@ -42,13 +41,12 @@ class TelegramMediaSender:
 			self.__logger.error("Unknown error", exc_info=True)
 			raise SendError()
 
-	def send_audio(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
+	def send_audio(self, chat_id: int, file_path: str, file_name: str, remove=False) -> None:
 		try:
 			with open(file_path, "rb") as audio:
-				file_extension = pathlib.Path(file_path).suffix or ""
-				payload = {"chat_id": chat_id, "title": title, "parse_mode": "HTML"}
+				payload = {"chat_id": chat_id, "title": file_name, "parse_mode": "HTML"}
 				files = {
-					"audio": (f"{title}{file_extension}", audio.read()),
+					"audio": (file_name, audio.read()),
 				}
 				url = f"{self.__base_url}{self.__bot_key}/sendAudio"
 				timeout = self.__telegram_options.audio_timeout_seconds
@@ -76,13 +74,12 @@ class TelegramMediaSender:
 				folder_name, _ = os.path.split(file_path)
 				shutil.rmtree(folder_name, ignore_errors=True)
 
-	def send_video(self, chat_id: int, file_path: str, title: str, remove=False) -> None:
+	def send_video(self, chat_id: int, file_path: str, file_name: str, remove=False) -> None:
 		try:
 			with open(file_path, "rb") as video:
-				file_extension = pathlib.Path(file_path).suffix or ""
-				payload = {"chat_id": chat_id, "title": title, "parse_mode": "HTML"}
+				payload = {"chat_id": chat_id, "title": file_name, "parse_mode": "HTML"}
 				files = {
-					"video": (f"{title}{file_extension}", video.read()),
+					"video": (file_name, video.read()),
 				}
 				url = f"{self.__base_url}{self.__bot_key}/sendVideo"
 				timeout = self.__telegram_options.video_timeout_seconds
