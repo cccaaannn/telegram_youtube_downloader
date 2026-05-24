@@ -2,11 +2,11 @@ import os
 import re
 import shutil
 import logging
+import pathlib
 import datetime
 from typing import Any, cast
 
 import yt_dlp as yt
-from requests import options
 from yt_dlp.utils import DownloadError as YtDlpDownloadError
 
 from telegram_youtube_downloader.data.dl_format import DlFormat
@@ -15,6 +15,7 @@ from telegram_youtube_downloader.youtube_dl_options import YoutubeDlOptions
 from telegram_youtube_downloader.statics.content_type import ContentType
 from telegram_youtube_downloader.errors.download_error import DownloadError
 from telegram_youtube_downloader.data.downloader_result import DownloaderResult
+from telegram_youtube_downloader.utils.sanitization_utils import SanitizationUtils
 
 
 class YoutubeDownloader:
@@ -95,11 +96,13 @@ class YoutubeDownloader:
 				# Get saved file path
 				downloaded_file_path = self.__get_downloaded_file_path(options["save_dir"])
 
+				# Build sanitized title
+				file_extension = pathlib.Path(downloaded_file_path).suffix or ""
+				title = f"{meta.get('title', 'Unknown')}{file_extension}"
+				sanitized_title = SanitizationUtils.sanitize_filename(title)
+
 				# Build response
-				result = DownloaderResult(
-					file_path=downloaded_file_path,
-					video_title=str(meta.get("title", "Unknown")),
-				)
+				result = DownloaderResult(file_path=downloaded_file_path, file_name=sanitized_title)
 
 				return result
 
